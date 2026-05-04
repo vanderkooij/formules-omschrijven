@@ -9,6 +9,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/algebrite@1.4.0/dist/algebrite.bundle-for-browser.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.0/lib/browser/math.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -404,10 +405,10 @@ function generateL1(){
     solveTarget=pick(candidates);
     if(solveTarget===a){
       correctAnswer=`${a} = ${x} / ${b}`;
-      canonicalAnswer=`${a} - ${x}/${b}`;
+      canonicalAnswer=`${x}/${b}`;
     } else {
       correctAnswer=`${b} = ${x} / ${a}`;
-      canonicalAnswer=`${b} - ${x}/${a}`;
+      canonicalAnswer=`${x}/${a}`;
     }
   } else {
     formula=`${x} = ${a} / ${b}`;
@@ -416,10 +417,10 @@ function generateL1(){
     solveTarget=pick(candidates);
     if(solveTarget===a){
       correctAnswer=`${a} = ${x} * ${b}`;
-      canonicalAnswer=`${a} - ${x}*${b}`;
+      canonicalAnswer=`${x}*${b}`;
     } else {
       correctAnswer=`${b} = ${a} / ${x}`;
-      canonicalAnswer=`${b} - ${a}/${x}`;
+      canonicalAnswer=`${a}/${x}`;
     }
   }
   return {level:1,formula,latexFormula,solveTarget,correctAnswer,canonicalAnswer,vars};
@@ -665,6 +666,57 @@ function normalizeInput(raw){
     .replace(/÷/g,'/');
 }
 
+// ── NUMERIC EQUIVALENCE CHECK ──
+const MATH_BUILTINS=new Set(['sqrt','sin','cos','tan','log','exp','pi','e','abs','asin','acos','atan','sign','round','floor','ceil','pow','nthRoot']);
+
+function numericEquiv(formulaEq, solveTarget, studentRhs){
+  // Extract all identifier tokens from formula and student expression
+  const combined=formulaEq+' '+studentRhs;
+  const tokens=(combined.match(/\b[a-zA-Z][a-zA-Z0-9_]*\b/g)||[]);
+  const allVars=[...new Set(tokens)].filter(t=>!MATH_BUILTINS.has(t));
+
+  // If solveTarget not present as a variable in the formula, can't verify
+  const fTokens=(formulaEq.match(/\b[a-zA-Z][a-zA-Z0-9_]*\b/g)||[])
+    .filter(t=>!MATH_BUILTINS.has(t));
+  if(!fTokens.includes(solveTarget)){
+    console.log(`[numericEquiv] "${solveTarget}" not in formula vars [${[...new Set(fTokens)]}] — cannot verify`);
+    return null;
+  }
+
+  const otherVars=allVars.filter(v=>v!==solveTarget);
+  const VALS=[2,3,5,7,11,13,17];
+  let pass=0;
+
+  for(let trial=0;trial<3;trial++){
+    try{
+      const scope={};
+      otherVars.forEach((v,i)=>{ scope[v]=VALS[(i+trial*3)%VALS.length]; });
+
+      const studentVal=math.evaluate(studentRhs,{...scope});
+      console.log(`[numericEquiv] trial ${trial}: scope=${JSON.stringify(scope)}, ${solveTarget}=${studentVal}`);
+
+      if(!isFinite(studentVal)||isNaN(studentVal)){
+        console.log(`[numericEquiv] trial ${trial}: non-finite, skipping`);
+        continue;
+      }
+
+      const checkScope={...scope,[solveTarget]:studentVal};
+      const eqParts=formulaEq.split('=');
+      const lv=math.evaluate(eqParts[0].trim(),checkScope);
+      const rv=math.evaluate(eqParts[1].trim(),checkScope);
+      const err=Math.abs(lv-rv)/(Math.max(Math.abs(lv),Math.abs(rv),1e-10));
+      console.log(`[numericEquiv] trial ${trial}: LHS=${lv}, RHS=${rv}, relErr=${err}`);
+
+      if(err<1e-6) pass++;
+    } catch(e){
+      console.log(`[numericEquiv] trial ${trial}: exception — ${e.message}`);
+    }
+  }
+
+  console.log(`[numericEquiv] pass=${pass}/3`);
+  return pass>=2;
+}
+
 function checkAnswer(){
   const ex=state.exercise;
   const raw=document.getElementById('answer-input').value;
@@ -690,17 +742,11 @@ function checkAnswer(){
       if(parts.length!==2){throw new Error('no equals');}
       const studentRhs=parts[1].trim();
 
-      // Get correct answer from Algebrite
-      const canonicalRaw=ex.canonicalAnswer;
-      if(!canonicalRaw){
-        // Fallback: string comparison on normalized
-        isCorrect=normalizeInput(student)===normalizeInput(ex.correctAnswer||'');
-      } else {
-        // Algebrite equivalence check
-        const diff=`simplify(${studentRhs} - (${canonicalRaw}))`;
-        const result=Algebrite.run(diff).trim();
-        isCorrect=(result==='0');
-      }
+      // Numeric equivalence check via math.js
+      console.log(`[check] formula="${ex.formula}" target="${ex.solveTarget}" studentRhs="${studentRhs}"`);
+      const checkResult=numericEquiv(ex.formula, ex.solveTarget, studentRhs);
+      console.log(`[check] numericEquiv → ${checkResult}`);
+      isCorrect=checkResult===true;
     } catch(e){
       parseError=true;
     }
