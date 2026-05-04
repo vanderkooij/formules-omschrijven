@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formules omschrijven · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo/JK_dark.svg" id="favicon">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;
+  --bg-primary-rgb:248,249,250;
+  --bg-secondary:#ffffff;
+  --bg-card:#ffffff;
+  --bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;
+  --accent-glow:rgba(11,181,200,0.2);
+  --accent-amber:#D4923A;
+  --accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);
+  --accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;
+  --text-secondary:#2d2d4a;
+  --text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);
+  --border-solid:#d4e8ec;
+  --glow-1:rgba(11,181,200,0.12);
+  --glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --radius:16px;
+}
+
+[data-theme="dark"]{
+  --bg:#0f1117;
+  --bg-primary-rgb:15,17,23;
+  --bg-secondary:#161b26;
+  --bg-card:#1c2333;
+  --bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);
+  --accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);
+  --accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;
+  --text-secondary:#94a3b8;
+  --text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);
+  --border-solid:#1e2d44;
+  --glow-1:rgba(11,181,200,0.15);
+  --glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+.theme-toggle{
+  background:transparent;border:1px solid var(--border-solid);border-radius:8px;
+  padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);
+  transition:all .2s;line-height:1;
+}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{
+  background:rgba(var(--bg-primary-rgb),0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:56px;
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+
+.main{max-width:900px;margin:0 auto;padding:40px 20px 80px;position:relative;z-index:1}
+
+.hero{text-align:center;margin-bottom:48px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:12px;color:var(--accent);
+  background:rgba(11,181,200,0.08);border:1px solid rgba(11,181,200,0.15);
+  padding:6px 14px;border-radius:100px;margin-bottom:20px;
+  text-transform:uppercase;letter-spacing:1px;
+}
+.hero-badge::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+.hero h1{font-size:clamp(28px,5vw,42px);font-weight:700;letter-spacing:-1px;margin-bottom:12px}
+.hero h1 .grad{background:linear-gradient(135deg,var(--accent),var(--accent-amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:16px;color:var(--text-secondary);max-width:540px;margin:0 auto;line-height:1.6}
+
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:40px}
+
+.mode-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:36px 32px;text-decoration:none;color:var(--text);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  position:relative;overflow:hidden;
+  box-shadow:0 2px 12px rgba(11,181,200,0.07);
+  display:flex;flex-direction:column;
+}
+.mode-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent),transparent);
+}
+.mode-card--b::before{background:linear-gradient(90deg,var(--accent-amber),transparent)}
+.mode-card:hover{
+  background:var(--bg-card-hover);border-color:var(--accent-border);
+  transform:translateY(-4px);
+  box-shadow:0 12px 40px rgba(11,181,200,0.12),0 0 30px var(--accent-glow);
+}
+
+.mode-letter{
+  font-family:var(--mono);font-size:12px;font-weight:700;
+  color:var(--accent);background:var(--accent-dim);
+  border:1px solid var(--accent-border);
+  padding:4px 10px;border-radius:6px;
+  display:inline-block;margin-bottom:16px;letter-spacing:1px;
+}
+.mode-card--b .mode-letter{color:var(--accent-amber);background:rgba(212,146,58,0.08);border-color:rgba(212,146,58,0.2)}
+
+.mode-card h2{font-size:22px;font-weight:700;letter-spacing:-0.4px;margin-bottom:8px}
+.mode-card > p{font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:20px}
+
+.bullets{list-style:none;margin-bottom:28px;display:flex;flex-direction:column;gap:8px}
+.bullets li{
+  font-size:13px;color:var(--text-secondary);
+  display:flex;align-items:flex-start;gap:8px;line-height:1.5;
+}
+.bullets li::before{content:'›';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px}
+.mode-card--b .bullets li::before{color:var(--accent-amber)}
+
+.mode-btn{
+  margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 20px;border-radius:10px;border:none;
+  font-size:14px;font-weight:700;cursor:pointer;
+  font-family:var(--font);transition:all .2s;text-decoration:none;
+  background:var(--accent);color:#fff;
+}
+.mode-btn:hover{background:#0999aa;box-shadow:0 0 20px var(--accent-glow)}
+.mode-card--b .mode-btn{background:var(--accent-amber)}
+.mode-card--b .mode-btn:hover{background:#c07d2a;box-shadow:0 0 20px var(--accent-amber-glow)}
+
+.explainer{
+  background:var(--bg-card);border:1px solid var(--border-solid);border-radius:12px;
+  padding:24px 28px;font-size:14px;color:var(--text-secondary);line-height:1.7;
+  text-align:center;
+}
+.explainer strong{color:var(--text)}
+
+footer{
+  text-align:center;padding:32px 0;border-top:1px solid var(--border);
+  font-family:var(--mono);font-size:12px;color:var(--text-muted);
+  margin-top:40px;position:relative;z-index:1;
+}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.main > *{animation:fadeUp .5s ease-out both}
+.hero{animation-delay:.05s}
+.cards-grid{animation-delay:.15s}
+.explainer{animation-delay:.25s}
+
+@media(max-width:640px){
+  .cards-grid{grid-template-columns:1fr}
+  .app-header{padding:0 12px}
+  .main{padding:28px 12px 60px}
+  .mode-card{padding:28px 22px}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span style="color:var(--text-muted);font-size:15px">›</span>
+    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Formules omschrijven</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<div class="main">
+
+  <div class="hero">
+    <div class="hero-badge">Formules omschrijven</div>
+    <h1>Kies een <span class="grad">oefenmodus</span></h1>
+    <p>Oefen het omschrijven van formules — van abstract oefenen met letters tot de echte formules uit je examenprogramma.</p>
+  </div>
+
+  <div class="cards-grid">
+
+    <div class="mode-card" onclick="window.location='abstract/'">
+      <span class="mode-letter">MODUS A</span>
+      <h2>Abstract oefenen</h2>
+      <p>Procedureel gegenereerde letterformules. Kies een level en oefen onbeperkt.</p>
+      <ul class="bullets">
+        <li>Level 1 — 3 variabelen, alleen × en ÷</li>
+        <li>Level 2 — 4-5 variabelen, alleen × en ÷</li>
+        <li>Level 3 — met optelling, aftrekking, machten en wortels</li>
+      </ul>
+      <a href="abstract/" class="mode-btn">Ga naar Modus A →</a>
+    </div>
+
+    <div class="mode-card mode-card--b" onclick="window.location='tabel35/'">
+      <span class="mode-letter">MODUS B</span>
+      <h2>Tabel 35</h2>
+      <p>Echte natuurkundeformules uit het examenprogramma. Kies thema's en niveau.</p>
+      <ul class="bullets">
+        <li>Havo of vwo</li>
+        <li>Kies thema's zelf</li>
+        <li>Optica als optionele extra</li>
+      </ul>
+      <a href="tabel35/" class="mode-btn">Ga naar Modus B →</a>
+    </div>
+
+  </div>
+
+  <div class="explainer">
+    <strong>Hoe werkt formules omschrijven?</strong> Je krijgt een formule te zien en de opdracht om deze om te schrijven naar een bepaalde grootheid. Je voert je antwoord in als formule — de tool checkt automatisch of jouw omschrijving wiskundig equivalent is aan het juiste antwoord. Zo kun je op je eigen tempo oefenen, van eenvoudige productformules tot complexe verbanden met machten en wortels.
+  </div>
+
+</div>
+
+<footer>
+  <img src="assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+</footer>
+
+<script>
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  const logo=document.querySelector('.header-logo');
+  const footerLogo=document.querySelector('.footer-logo');
+  const btn=document.getElementById('theme-btn');
+  const favicon=document.getElementById('favicon');
+  if(theme==='dark'){
+    if(logo) logo.src='assets/logo/JK_dark.svg';
+    if(footerLogo) footerLogo.src='assets/logo/JK_white.svg';
+    if(favicon) favicon.href='assets/logo/JK_dark.svg';
+    if(btn) btn.textContent='☀️';
+  } else {
+    if(logo) logo.src='assets/logo/JK_light.svg';
+    if(footerLogo) footerLogo.src='assets/logo/JK_black.svg';
+    if(favicon) favicon.href='assets/logo/JK_light.svg';
+    if(btn) btn.textContent='🌙';
+  }
+}
+function toggleTheme(){
+  const current=document.documentElement.getAttribute('data-theme')||'light';
+  const next=current==='dark'?'light':'dark';
+  localStorage.setItem('nh-theme',next);
+  applyTheme(next);
+}
+(function(){
+  const saved=localStorage.getItem('nh-theme');
+  if(saved){applyTheme(saved);}
+  else if(window.matchMedia('(prefers-color-scheme: dark)').matches){applyTheme('dark');}
+  else{applyTheme('light');}
+})();
+</script>
+</body>
+</html>

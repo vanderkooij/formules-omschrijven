@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abstract oefenen · Formules omschrijven · NatuurkundeHub</title>
+<link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/algebrite@1.4.0/dist/algebrite.bundle-for-browser.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f8f9fa;
+  --bg-primary-rgb:248,249,250;
+  --bg-secondary:#ffffff;
+  --bg-card:#ffffff;
+  --bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;
+  --accent-glow:rgba(11,181,200,0.2);
+  --accent-amber:#D4923A;
+  --accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);
+  --accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;
+  --text-secondary:#2d2d4a;
+  --text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);
+  --border-solid:#d4e8ec;
+  --green:#16a34a;
+  --green-dim:rgba(22,163,74,0.1);
+  --green-border:rgba(22,163,74,0.3);
+  --red:#dc2626;
+  --red-dim:rgba(220,38,38,0.1);
+  --red-border:rgba(220,38,38,0.3);
+  --orange:#d97706;
+  --orange-dim:rgba(217,119,6,0.1);
+  --orange-border:rgba(217,119,6,0.3);
+  --glow-1:rgba(11,181,200,0.12);
+  --glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --radius:14px;
+}
+
+[data-theme="dark"]{
+  --bg:#0f1117;
+  --bg-primary-rgb:15,17,23;
+  --bg-secondary:#161b26;
+  --bg-card:#1c2333;
+  --bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);
+  --accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);
+  --accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;
+  --text-secondary:#94a3b8;
+  --text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);
+  --border-solid:#1e2d44;
+  --green:#22c55e;
+  --green-dim:rgba(34,197,94,0.12);
+  --green-border:rgba(34,197,94,0.3);
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,0.12);
+  --red-border:rgba(239,68,68,0.3);
+  --orange:#f59e0b;
+  --orange-dim:rgba(245,158,11,0.1);
+  --orange-border:rgba(245,158,11,0.3);
+  --glow-1:rgba(11,181,200,0.15);
+  --glow-2:rgba(212,146,58,0.1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+
+.ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
+.ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
+.ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
+
+.theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
+.theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
+
+.app-header{
+  background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between;min-height:56px;
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
+.app-title span{color:var(--accent)}
+
+.main{max-width:760px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1}
+
+/* ── SETTINGS ── */
+.section-title{font-size:15px;font-weight:700;color:var(--accent);padding-left:12px;border-left:3px solid var(--accent);margin-bottom:18px;letter-spacing:-0.2px}
+.section-title.amber{color:var(--accent-amber);border-left-color:var(--accent-amber)}
+
+.level-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.level-toggle{
+  display:flex;align-items:flex-start;gap:14px;padding:16px 18px;
+  background:var(--bg-card);border:1.5px solid var(--border-solid);border-radius:12px;
+  cursor:pointer;transition:all .15s;
+}
+.level-toggle:hover{border-color:var(--accent-border);background:var(--bg-card-hover)}
+.level-toggle.active{border-color:var(--accent);background:var(--accent-dim)}
+.level-toggle input{display:none}
+.level-check{
+  width:20px;height:20px;border-radius:6px;border:2px solid var(--border-solid);
+  flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;font-size:12px;
+}
+.level-toggle.active .level-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.level-label{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.level-desc{font-size:12px;color:var(--text-muted)}
+
+.start-btn{
+  width:100%;padding:14px;background:var(--accent-amber);color:#fff;border:none;
+  border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;
+  font-family:var(--font);transition:all .2s;letter-spacing:-0.2px;
+}
+.start-btn:hover:not(:disabled){background:#c07d2a;box-shadow:0 0 24px var(--accent-amber-glow)}
+.start-btn:disabled{opacity:0.4;cursor:default}
+
+/* ── EXERCISE ── */
+.exercise-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.level-badge{
+  font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);
+  background:var(--accent-dim);border:1px solid var(--accent-border);
+  padding:4px 10px;border-radius:6px;letter-spacing:1px;
+}
+.ex-counter{font-size:13px;color:var(--text-muted);font-family:var(--mono)}
+
+.formula-card{
+  background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);
+  padding:32px 28px;margin-bottom:14px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.06);
+}
+.formula-display{
+  text-align:center;padding:16px 0 20px;
+  font-size:2rem;line-height:1.6;
+  min-height:64px;
+  overflow-x:auto;
+}
+.question{
+  font-size:15px;color:var(--text-secondary);margin-bottom:18px;
+  padding-top:16px;border-top:1px solid var(--border-solid);
+}
+.question strong{color:var(--text);font-weight:700}
+
+/* Input area */
+.input-wrap{margin-bottom:10px}
+.sym-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.sym-btn{
+  padding:5px 11px;border:1px solid var(--border-solid);border-radius:6px;
+  font-size:13px;cursor:pointer;background:var(--bg-secondary);color:var(--text-secondary);
+  font-family:var(--mono);line-height:1.4;transition:all .15s;
+}
+.sym-btn:hover{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
+
+.formula-input{
+  width:100%;border:2px solid var(--border-solid);border-radius:10px;
+  padding:12px 14px;font-size:15px;background:var(--bg-secondary);color:var(--text);
+  font-family:var(--mono);transition:all .15s;
+}
+.formula-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.formula-input.correct{border-color:var(--green);background:var(--green-dim)}
+.formula-input.wrong{border-color:var(--red);background:var(--red-dim)}
+
+.preview-wrap{
+  min-height:32px;padding:8px 0 4px;
+  font-size:1.1rem;color:var(--text-secondary);
+  overflow-x:auto;
+}
+
+.feedback-bar{
+  font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;
+  margin-bottom:12px;border-left:4px solid;display:none;
+}
+.feedback-bar.ok{background:var(--green-dim);color:var(--green);border-color:var(--green);display:block}
+.feedback-bar.retry{background:var(--orange-dim);color:var(--orange);border-color:var(--orange);display:block}
+.feedback-bar.show{display:block}
+
+.solution-reveal{
+  background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;
+  padding:12px 16px;margin-bottom:12px;font-size:14px;color:var(--text-secondary);
+  display:none;
+}
+.solution-reveal strong{color:var(--text)}
+.solution-reveal .katex-sol{font-size:1.1rem;padding:8px 0}
+
+.btn-row{display:flex;gap:10px}
+.qbtn{
+  flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border-solid);
+  font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-muted);
+  font-family:var(--font);font-weight:600;transition:all .15s;
+}
+.qbtn:hover{border-color:var(--accent-border);color:var(--accent)}
+.qbtn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qbtn.primary:hover{background:#0999aa}
+.qbtn:disabled{opacity:0.4;cursor:default}
+
+.loading-indicator{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:40px;position:relative;z-index:1}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.panel{display:none}.panel.active{display:block;animation:fadeUp .3s ease-out}
+
+@media(max-width:560px){
+  .app-header{padding:0 12px}
+  .main{padding:20px 12px 60px}
+  .formula-card{padding:24px 16px}
+  .formula-display{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow ambient-glow--cyan"></div>
+<div class="ambient-glow ambient-glow--amber"></div>
+
+<div class="app-header">
+  <div class="header-left">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="../assets/logo/JK_light.svg" alt="JK logo" class="header-logo" style="height:32px;opacity:0.9;">
+      <span class="app-title">Natuurkunde<span>Hub</span></span>
+    </a>
+    <span style="color:var(--text-muted);font-size:15px">›</span>
+    <a href="../" style="color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none">Formules omschrijven</a>
+    <span style="color:var(--text-muted);font-size:15px">›</span>
+    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Modus A</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
+</div>
+
+<div class="main">
+
+<!-- SETTINGS PANEL -->
+<div class="panel active" id="panel-settings">
+  <div class="section-title amber">Kies je level(s)</div>
+  <div class="level-grid">
+    <label class="level-toggle" id="lbl-1">
+      <input type="checkbox" value="1" onchange="updateToggles()">
+      <div class="level-check" id="chk-1"></div>
+      <div>
+        <div class="level-label">Level 1</div>
+        <div class="level-desc">3 variabelen — alleen × en ÷</div>
+      </div>
+    </label>
+    <label class="level-toggle" id="lbl-2">
+      <input type="checkbox" value="2" onchange="updateToggles()">
+      <div class="level-check" id="chk-2"></div>
+      <div>
+        <div class="level-label">Level 2</div>
+        <div class="level-desc">4–5 variabelen — alleen × en ÷</div>
+      </div>
+    </label>
+    <label class="level-toggle" id="lbl-3">
+      <input type="checkbox" value="3" onchange="updateToggles()">
+      <div class="level-check" id="chk-3"></div>
+      <div>
+        <div class="level-label">Level 3</div>
+        <div class="level-desc">Met optelling, aftrekking, machten en wortels</div>
+      </div>
+    </label>
+  </div>
+  <button class="start-btn" id="start-btn" onclick="startExercise()" disabled>Kies een level om te starten</button>
+</div>
+
+<!-- EXERCISE PANEL -->
+<div class="panel" id="panel-exercise">
+  <div class="exercise-meta">
+    <span class="level-badge" id="ex-badge">LEVEL 1</span>
+    <span class="ex-counter" id="ex-counter">Opgave 1</span>
+  </div>
+
+  <div class="formula-card">
+    <div class="formula-display" id="formula-display"></div>
+    <div class="question" id="question-text"></div>
+
+    <div class="input-wrap">
+      <div class="sym-bar">
+        <button class="sym-btn" type="button" onclick="insertSym('^')">xⁿ (^)</button>
+        <button class="sym-btn" type="button" onclick="insertSym('sqrt(')">√(</button>
+        <button class="sym-btn" type="button" onclick="insertSym(')')">)</button>
+        <button class="sym-btn" type="button" onclick="insertSym('/')">÷ (/)</button>
+        <button class="sym-btn" type="button" onclick="insertSym('*')">× (*)</button>
+        <button class="sym-btn" type="button" onclick="insertSym('(')"> ( </button>
+        <button class="sym-btn" type="button" onclick="insertSym('_')">x_n (_)</button>
+      </div>
+      <input
+        class="formula-input"
+        id="answer-input"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Typ je antwoord, bijv. a = sqrt(b/c)"
+        onkeydown="handleInputKey(event)"
+        oninput="updatePreview()"
+      >
+    </div>
+
+    <div class="preview-wrap" id="preview-wrap"></div>
+  </div>
+
+  <div class="feedback-bar" id="feedback"></div>
+  <div class="solution-reveal" id="solution-reveal">
+    <strong>Uitwerking:</strong>
+    <div class="katex-sol" id="solution-katex"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="qbtn" id="btn-skip" onclick="skipExercise()">Sla over</button>
+    <button class="qbtn primary" id="btn-check" onclick="handleCheckBtn()">
+      Controleer
+    </button>
+  </div>
+</div>
+
+</div>
+
+<footer>
+  <img src="../assets/logo/JK_black.svg" alt="JK logo" class="footer-logo" style="height:24px;opacity:0.3;display:block;margin:0 auto 8px;">
+  Jop van der Kooij · NatuurkundeHub · © 2026
+</footer>
+
+<script>
+// ── THEME ──
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  const logo=document.querySelector('.header-logo');
+  const footerLogo=document.querySelector('.footer-logo');
+  const btn=document.getElementById('theme-btn');
+  const favicon=document.getElementById('favicon');
+  if(theme==='dark'){
+    if(logo) logo.src='../assets/logo/JK_dark.svg';
+    if(footerLogo) footerLogo.src='../assets/logo/JK_white.svg';
+    if(favicon) favicon.href='../assets/logo/JK_dark.svg';
+    if(btn) btn.textContent='☀️';
+  } else {
+    if(logo) logo.src='../assets/logo/JK_light.svg';
+    if(footerLogo) footerLogo.src='../assets/logo/JK_black.svg';
+    if(favicon) favicon.href='../assets/logo/JK_light.svg';
+    if(btn) btn.textContent='🌙';
+  }
+}
+function toggleTheme(){
+  const current=document.documentElement.getAttribute('data-theme')||'light';
+  const next=current==='dark'?'light':'dark';
+  localStorage.setItem('nh-theme',next);
+  applyTheme(next);
+}
+(function(){
+  const saved=localStorage.getItem('nh-theme');
+  if(saved){applyTheme(saved);}
+  else if(window.matchMedia('(prefers-color-scheme: dark)').matches){applyTheme('dark');}
+  else{applyTheme('light');}
+})();
+
+// ── SETTINGS ──
+function updateToggles(){
+  [1,2,3].forEach(n=>{
+    const inp=document.querySelector(`#lbl-${n} input`);
+    const lbl=document.getElementById(`lbl-${n}`);
+    const chk=document.getElementById(`chk-${n}`);
+    if(inp.checked){lbl.classList.add('active');chk.textContent='✓';}
+    else{lbl.classList.remove('active');chk.textContent='';}
+  });
+  const any=[1,2,3].some(n=>document.querySelector(`#lbl-${n} input`).checked);
+  const btn=document.getElementById('start-btn');
+  btn.disabled=!any;
+  btn.textContent=any?'Start oefenen →':'Kies een level om te starten';
+}
+
+// ── GENERATOR ──
+const VARS='abcdefghijkmnpqrstuvwxyz'.split(''); // no l, o
+
+function pickVars(n){
+  const shuffled=[...VARS].sort(()=>Math.random()-.5);
+  return shuffled.slice(0,n);
+}
+
+function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+function generateL1(){
+  // x = a * b  or  x = a / b
+  const vars=pickVars(3);
+  const [x,a,b]=vars;
+  const op=pick(['*','/']);
+  let formula, latexFormula, solveTarget, correctAnswer, canonicalAnswer;
+
+  if(op==='*'){
+    formula=`${x} = ${a} * ${b}`;
+    latexFormula=`${x} = ${a} \\cdot ${b}`;
+    const candidates=[a,b];
+    solveTarget=pick(candidates);
+    if(solveTarget===a){
+      correctAnswer=`${a} = ${x} / ${b}`;
+      canonicalAnswer=`${a} - ${x}/${b}`;
+    } else {
+      correctAnswer=`${b} = ${x} / ${a}`;
+      canonicalAnswer=`${b} - ${x}/${a}`;
+    }
+  } else {
+    formula=`${x} = ${a} / ${b}`;
+    latexFormula=`${x} = \\dfrac{${a}}{${b}}`;
+    const candidates=[a,b];
+    solveTarget=pick(candidates);
+    if(solveTarget===a){
+      correctAnswer=`${a} = ${x} * ${b}`;
+      canonicalAnswer=`${a} - ${x}*${b}`;
+    } else {
+      correctAnswer=`${b} = ${a} / ${x}`;
+      canonicalAnswer=`${b} - ${a}/${x}`;
+    }
+  }
+  return {level:1,formula,latexFormula,solveTarget,correctAnswer,canonicalAnswer,vars};
+}
+
+function generateL2(){
+  const n=pick([4,5]);
+  const vars=pickVars(n);
+  const [x,...rest]=vars;
+
+  // random structure: x = (a*b*...) / (c*...) with at least 1 in numerator
+  const numCount=randInt(1,rest.length-1);
+  const numVars=rest.slice(0,numCount);
+  const denVars=rest.slice(numCount);
+
+  const numStr=numVars.join(' * ');
+  const denStr=denVars.length>0?denVars.join(' * '):'1';
+
+  let formula, latexFormula;
+  if(denVars.length===0){
+    formula=`${x} = ${numStr}`;
+    latexFormula=`${x} = ${numVars.join(' \\cdot ')}`;
+  } else if(numVars.length===1){
+    formula=`${x} = ${numStr} / (${denStr})`;
+    latexFormula=`${x} = \\dfrac{${numStr}}{${denStr.replace(/\*/g,'\\cdot')}}`;
+  } else {
+    formula=`${x} = (${numStr}) / (${denStr})`;
+    latexFormula=`${x} = \\dfrac{${numStr.replace(/\*/g,'\\cdot')}}{${denStr.replace(/\*/g,'\\cdot')}}`;
+  }
+
+  const solveTarget=pick(rest);
+  let canonicalAnswer;
+
+  // Build the correct answer using Algebrite
+  try{
+    const lhs=solveTarget;
+    const expr=formula.split('=')[1].trim();
+    const solStr=`solve(${expr} - ${x}, ${solveTarget})`;
+    const res=Algebrite.run(solStr);
+    // Algebrite returns list notation
+    canonicalAnswer=res.replace(/\[|\]/g,'').trim();
+  } catch(e){
+    canonicalAnswer=null;
+  }
+
+  return {level:2,formula,latexFormula,solveTarget,canonicalAnswer,vars};
+}
+
+function generateL3(){
+  const vars=pickVars(4);
+  const [x,a,b,c]=vars;
+
+  const patterns=[
+    // x = a^2 * b  → solve for a or b
+    ()=>{
+      const formula=`${x} = ${a}^2 * ${b}`;
+      const latexFormula=`${x} = ${a}^2 \\cdot ${b}`;
+      const solveTarget=pick([a,b]);
+      return {formula,latexFormula,solveTarget};
+    },
+    // x = sqrt(a * b)  → solve for a or b
+    ()=>{
+      const formula=`${x} = sqrt(${a} * ${b})`;
+      const latexFormula=`${x} = \\sqrt{${a} \\cdot ${b}}`;
+      const solveTarget=pick([a,b]);
+      return {formula,latexFormula,solveTarget};
+    },
+    // x = (a^2) / b  → solve for a or b
+    ()=>{
+      const formula=`${x} = ${a}^2 / ${b}`;
+      const latexFormula=`${x} = \\dfrac{${a}^2}{${b}}`;
+      const solveTarget=pick([a,b]);
+      return {formula,latexFormula,solveTarget};
+    },
+    // x = a + b * c  → solve for b or c (not a, ambiguous)
+    ()=>{
+      const formula=`${x} = ${a} + ${b} * ${c}`;
+      const latexFormula=`${x} = ${a} + ${b} \\cdot ${c}`;
+      const solveTarget=pick([b,c]);
+      return {formula,latexFormula,solveTarget};
+    },
+    // x = sqrt(a / b)  → solve for a or b
+    ()=>{
+      const formula=`${x} = sqrt(${a} / ${b})`;
+      const latexFormula=`${x} = \\sqrt{\\dfrac{${a}}{${b}}}`;
+      const solveTarget=pick([a,b]);
+      return {formula,latexFormula,solveTarget};
+    },
+    // x = a * b^2 / c  → solve for b or c
+    ()=>{
+      const formula=`${x} = ${a} * ${b}^2 / ${c}`;
+      const latexFormula=`${x} = \\dfrac{${a} \\cdot ${b}^2}{${c}}`;
+      const solveTarget=pick([b,c]);
+      return {formula,latexFormula,solveTarget};
+    },
+  ];
+
+  const {formula,latexFormula,solveTarget}=pick(patterns)();
+
+  let canonicalAnswer=null;
+  try{
+    const expr=formula.split('=')[1].trim();
+    const res=Algebrite.run(`solve(${expr} - ${x}, ${solveTarget})`);
+    canonicalAnswer=res.replace(/\[|\]/g,'').trim();
+  } catch(e){ canonicalAnswer=null; }
+
+  return {level:3,formula,latexFormula,solveTarget,canonicalAnswer,vars};
+}
+
+function generateExercise(levels){
+  const level=pick(levels);
+  if(level===1) return generateL1();
+  if(level===2) return generateL2();
+  return generateL3();
+}
+
+// ── STATE ──
+let state={
+  exercise:null,
+  attempts:0,
+  checked:false,
+  counter:0,
+  selectedLevels:[],
+};
+
+function startExercise(){
+  state.selectedLevels=[1,2,3].filter(n=>document.querySelector(`#lbl-${n} input`).checked);
+  state.counter=0;
+  showPanel('exercise');
+  nextExercise();
+}
+
+function nextExercise(){
+  state.counter++;
+  state.attempts=0;
+  state.checked=false;
+
+  const ex=generateExercise(state.selectedLevels);
+  state.exercise=ex;
+
+  document.getElementById('ex-badge').textContent=`LEVEL ${ex.level}`;
+  document.getElementById('ex-counter').textContent=`Opgave ${state.counter}`;
+
+  const displayEl=document.getElementById('formula-display');
+  displayEl.textContent='';
+  renderKaTeX(ex.latexFormula, displayEl);
+
+  document.getElementById('question-text').innerHTML=
+    `Schrijf de formule om naar: <strong>${ex.solveTarget}</strong>`;
+
+  const inp=document.getElementById('answer-input');
+  inp.value='';
+  inp.className='formula-input';
+  inp.readOnly=false;
+
+  document.getElementById('preview-wrap').innerHTML='';
+  document.getElementById('feedback').className='feedback-bar';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('solution-reveal').style.display='none';
+
+  const btnCheck=document.getElementById('btn-check');
+  btnCheck.textContent='Controleer';
+  btnCheck.className='qbtn primary';
+  btnCheck.disabled=false;
+
+  document.getElementById('btn-skip').style.display='';
+  inp.focus();
+}
+
+function skipExercise(){
+  if(state.checked){nextExercise();return;}
+  revealSolution();
+  const fb=document.getElementById('feedback');
+  fb.textContent='Overgeslagen — bekijk de uitwerking hieronder.';
+  fb.className='feedback-bar retry show';
+  state.checked=true;
+  document.getElementById('btn-check').textContent='Volgende opgave';
+  document.getElementById('btn-skip').style.display='none';
+}
+
+// ── INPUT ──
+function insertSym(sym){
+  const inp=document.getElementById('answer-input');
+  if(inp.readOnly) return;
+  const s=inp.selectionStart,e=inp.selectionEnd;
+  inp.value=inp.value.slice(0,s)+sym+inp.value.slice(e);
+  inp.selectionStart=inp.selectionEnd=s+sym.length;
+  inp.focus();
+  updatePreview();
+}
+
+function handleInputKey(e){
+  if(e.key==='Tab'){e.preventDefault();insertSym('    ');}
+  if(e.key==='Enter'){handleCheckBtn();}
+}
+
+function inputToLatex(raw){
+  let s=raw.trim();
+  // x^2 → x^{2}  for multi-char exponents
+  s=s.replace(/\^(\d+)/g,'^{$1}');
+  // sqrt(...) → \sqrt{...}
+  s=s.replace(/sqrt\(([^)]*)\)/g,'\\sqrt{$1}');
+  // a/b → \dfrac{a}{b}  (simple single tokens)
+  s=s.replace(/([a-zA-Z0-9_]+)\s*\/\s*([a-zA-Z0-9_^{}\\]+)/g,'\\dfrac{$1}{$2}');
+  // * → \cdot
+  s=s.replace(/\*/g,'\\cdot ');
+  return s;
+}
+
+function updatePreview(){
+  const raw=document.getElementById('answer-input').value;
+  const wrap=document.getElementById('preview-wrap');
+  if(!raw.trim()){wrap.innerHTML='';return;}
+  try{
+    const latex=inputToLatex(raw);
+    katex.render(latex,wrap,{throwOnError:false,displayMode:false});
+  } catch(e){
+    wrap.innerHTML=`<span style="color:var(--text-muted);font-size:12px">${raw}</span>`;
+  }
+}
+
+// ── KATEX HELPERS ──
+function renderKaTeX(latex, el, display=true){
+  try{
+    katex.render(latex,el,{throwOnError:false,displayMode:display});
+  } catch(e){
+    el.textContent=latex;
+  }
+}
+
+// ── CHECK ──
+function handleCheckBtn(){
+  if(state.checked){nextExercise();return;}
+  checkAnswer();
+}
+
+function normalizeInput(raw){
+  return raw.trim()
+    .replace(/\s+/g,' ')
+    .replace(/√\(/g,'sqrt(')
+    .replace(/·/g,'*')
+    .replace(/×/g,'*')
+    .replace(/÷/g,'/');
+}
+
+function checkAnswer(){
+  const ex=state.exercise;
+  const raw=document.getElementById('answer-input').value;
+  if(!raw.trim()) return;
+
+  const inp=document.getElementById('answer-input');
+  const fb=document.getElementById('feedback');
+  const btnCheck=document.getElementById('btn-check');
+
+  // Show loading state
+  btnCheck.disabled=true;
+  btnCheck.innerHTML='<span class="loading-indicator"></span>Controleren…';
+
+  setTimeout(()=>{
+    let isCorrect=false;
+    let parseError=false;
+
+    try{
+      const student=normalizeInput(raw);
+
+      // Extract LHS (should be the target variable)
+      const parts=student.split('=');
+      if(parts.length!==2){throw new Error('no equals');}
+      const studentRhs=parts[1].trim();
+
+      // Get correct answer from Algebrite
+      const canonicalRaw=ex.canonicalAnswer;
+      if(!canonicalRaw){
+        // Fallback: string comparison on normalized
+        isCorrect=normalizeInput(student)===normalizeInput(ex.correctAnswer||'');
+      } else {
+        // Algebrite equivalence check
+        const diff=`simplify(${studentRhs} - (${canonicalRaw}))`;
+        const result=Algebrite.run(diff).trim();
+        isCorrect=(result==='0');
+      }
+    } catch(e){
+      parseError=true;
+    }
+
+    btnCheck.disabled=false;
+    btnCheck.innerHTML='Controleer';
+
+    if(parseError){
+      fb.textContent='Ik begrijp je invoer niet — controleer haakjes en symbolen.';
+      fb.className='feedback-bar retry show';
+      return;
+    }
+
+    if(isCorrect){
+      fb.textContent='Goed! ✓';
+      fb.className='feedback-bar ok';
+      inp.classList.add('correct');
+      state.checked=true;
+      btnCheck.textContent='Volgende opgave';
+      btnCheck.className='qbtn primary';
+      document.getElementById('btn-skip').style.display='none';
+    } else {
+      state.attempts++;
+      if(state.attempts>=2){
+        fb.textContent='Niet correct — bekijk de uitwerking hieronder.';
+        fb.className='feedback-bar retry show';
+        revealSolution();
+        state.checked=true;
+        btnCheck.textContent='Volgende opgave';
+        document.getElementById('btn-skip').style.display='none';
+        inp.classList.add('wrong');
+      } else {
+        fb.textContent='Niet helemaal — probeer opnieuw.';
+        fb.className='feedback-bar retry show';
+      }
+    }
+  }, 50); // small delay to allow loading indicator to paint
+}
+
+function revealSolution(){
+  const ex=state.exercise;
+  const div=document.getElementById('solution-reveal');
+  const solEl=document.getElementById('solution-katex');
+  div.style.display='block';
+  const ans=ex.correctAnswer||ex.canonicalAnswer||'—';
+  renderKaTeX(inputToLatex(ans),solEl,false);
+}
+
+// ── PANELS ──
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+</script>
+</body>
+</html>
