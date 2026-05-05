@@ -352,6 +352,7 @@ function startExercise(){
 function nextExercise(){
   state.counter++;state.attempts=0;state.checked=false;setSubMode(false);
   const ex=generateExercise(state.selectedLevels);state.exercise=ex;
+  console.log('[exercise] formula:',ex.formula,'| target:',ex.solveTarget,'| canonical:',ex.canonicalAnswer);
   document.getElementById('ex-badge').textContent=`LEVEL ${ex.level}`;
   document.getElementById('ex-counter').textContent=`Opgave ${state.counter}`;
   const displayEl=document.getElementById('formula-display');displayEl.textContent='';
@@ -398,7 +399,12 @@ function handleInputKey(e){
 function exprToLatex(expr){
   if(!expr)return'';
   let s=expr.trim();
-  // Unicode Greek → LaTeX
+  // Named Greek (including pi) → LaTeX
+  const nameMap={'alpha':'\\alpha','beta':'\\beta','gamma':'\\gamma','delta':'\\delta',
+                 'eta':'\\eta','lambda':'\\lambda','rho':'\\rho','omega':'\\omega',
+                 'phi':'\\phi','pi':'\\pi'};
+  for(const[n,l]of Object.entries(nameMap))s=s.replace(new RegExp('\\b'+n+'\\b','g'),l);
+  // Unicode Greek → LaTeX (fallback)
   for(const[u,l]of Object.entries(GREEK_TO_LATEX))s=s.split(u).join(l);
   // sqrt
   s=s.replace(/sqrt\(([^()]*)\)/g,'\\sqrt{$1}');
@@ -406,7 +412,7 @@ function exprToLatex(expr){
   // Exponents
   s=s.replace(/\^(-?\d+(?:\.\d+)?)/g,'^{$1}');
   s=s.replace(/\^([a-zA-Z_][a-zA-Z0-9_]*)/g,'^{$1}');
-  // Subscripts: v_max → v_{max}, v_0 → v_{0}
+  // Subscripts: v_max → v_{max}
   s=s.replace(/_([a-zA-Z0-9]+)/g,'_{$1}');
   // Fractions (multiple passes for nested)
   for(let i=0;i<3;i++){
@@ -442,62 +448,88 @@ function renderKaTeX(latex,el,display){
 
 // ── NORMALISE + PREPROCESS ──
 const BUILTINS_SET=new Set(['sqrt','pi','sin','cos','tan','log','exp','abs','alpha','beta','gamma','delta','eta','lambda','rho','omega','phi','Delta','nthRoot','e']);
+const PRIMES=[2,3,5,7,11,13,17,19,23,29];
 
-function normalizeInput(raw){
-  let s=raw.trim().replace(/\s+/g,' ')
-    .replace(/√\(/g,'sqrt(').replace(/·/g,'*').replace(/×/g,'*').replace(/÷/g,'/');
-  // Unicode Greek → math.js names
-  for(const[u,n]of Object.entries(GREEK_TO_MATHJS))s=s.split(u).join(n);
-  return s;
+function normalizeExpr(s){
+  s=String(s).trim();
+  // LaTeX fractions
+  for(let i=0;i<5;i++) s=s.replace(/\\d?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g,'($1)/($2)');
+  // LaTeX sqrt
+  for(let i=0;i<3;i++) s=s.replace(/\\sqrt\s*\{([^{}]*)\}/g,'sqrt($1)');
+  s=s.replace(/\\sqrt\b/g,'sqrt');
+  // LaTeX exponents & subscript braces
+  s=s.replace(/\^\s*\{([^{}]+)\}/g,'^($1)');
+  s=s.replace(/_\s*\{([^{}]+)\}/g,'$1');
+  // LaTeX Greek commands → names
+  s=s.replace(/\\Delta\b/g,'Delta').replace(/\\alpha\b/g,'alpha')
+     .replace(/\\beta\b/g,'beta').replace(/\\gamma\b/g,'gamma')
+     .replace(/\\delta\b/g,'delta').replace(/\\eta\b/g,'eta')
+     .replace(/\\lambda\b/g,'lambda').replace(/\\rho\b/g,'rho')
+     .replace(/\\omega\b/g,'omega').replace(/\\phi\b/g,'phi').replace(/\\pi\b/g,'pi');
+  s=s.replace(/\\cdot\b/g,'*').replace(/\\times\b/g,'*').replace(/\\div\b/g,'/');
+  s=s.replace(/\\([a-zA-Z]+)/g,'$1');
+  s=s.replace(/[{}]/g,'');
+  // Unicode Greek → names
+  const uMap={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta',
+              'λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi'};
+  for(const[u,n]of Object.entries(uMap)) s=s.split(u).join(n);
+  // Unicode operators
+  s=s.replace(/·/g,'*').replace(/×/g,'*').replace(/÷/g,'/').replace(/√\(/g,'sqrt(');
+  // Delta X → dX (single letter)
+  s=s.replace(/\bDelta\s*([A-Za-z])\b/g,(m,l)=>'d'+l);
+  // Subscript flattening: v_max → vmax
+  s=s.replace(/([a-zA-Z0-9])_([a-zA-Z0-9]+)/g,'$1$2');
+  return s.replace(/\s+/g,' ').trim();
 }
 
-function preprocessAndNormalize(expr){
-  // Step 1: protect builtins with null-byte placeholders
-  const BUILTINS=['sqrt','pi','sin','cos','tan','log','exp','abs','alpha','beta','gamma','delta','eta','lambda','rho','omega','phi','Delta','nthRoot'];
-  let s=expr;
+function prepForEval(s){
+  // Protect builtins with null-byte placeholders
+  const BUILTINS=['sqrt','pi','sin','cos','tan','log','exp','abs','alpha','beta','gamma',
+                  'delta','eta','lambda','rho','omega','phi','Delta','nthRoot'];
   const map=[];
   for(const w of BUILTINS){
     const re=new RegExp('\\b'+w+'\\b','g');
     s=s.replace(re,()=>{map.push(w);return`\x00${map.length-1}\x00`;});
   }
-  // Step 2: wrap implicit denominators (2+ concatenated letters after /)
-  // f/pwa → f/(pwa) so that implicit expand gives f/(p*w*a)
+  // Wrap implicit denominators (2+ letters after /)
   s=s.replace(/\/(?!\()([a-zA-Z][a-zA-Z]+)(?=[^a-zA-Z0-9_]|$)/g,(m,letters)=>'/('+letters+')');
-  // Step 3: expand implicit multiply (digit→letter, letter→letter)
+  // Digit → letter and letter → letter implicit multiply (abstract: all single-letter vars)
   s=s.replace(/(\d)([a-zA-Z])/g,'$1*$2');
   s=s.replace(/([a-zA-Z])([a-zA-Z])/g,'$1*$2');
-  // Step 4: restore builtins
+  // Restore builtins
   map.forEach((w,i)=>{s=s.split(`\x00${i}\x00`).join(w);});
   return s;
 }
 
-// ── NUMERIC EQUIVALENCE ──
-function numericEquiv(formulaEq,solveTarget,studentRhs){
-  // Tokenise both formula and student answer for variable names (case-sensitive)
-  const combined=formulaEq+' '+studentRhs;
-  const tokens=(combined.match(/\b[a-zA-Z][a-zA-Z0-9_]*\b/g)||[]);
-  const allVars=[...new Set(tokens)].filter(t=>!BUILTINS_SET.has(t));
-  const fTokens=(formulaEq.match(/\b[a-zA-Z][a-zA-Z0-9_]*\b/g)||[]).filter(t=>!BUILTINS_SET.has(t));
-  if(!fTokens.includes(solveTarget))return null;
+function extractVars(s){
+  const tokens=(s.match(/\b[a-zA-Z][a-zA-Z0-9]*\b/g)||[]);
+  return[...new Set(tokens)].filter(t=>!BUILTINS_SET.has(t));
+}
+
+// ── NUMERIC CHECK ──
+function numericCheck(formulaEq,solveTarget,studentRhs){
+  const allVars=extractVars(formulaEq+' '+studentRhs);
+  if(!extractVars(formulaEq).includes(solveTarget))return null;
   const otherVars=allVars.filter(v=>v!==solveTarget);
-  // Use distinct prime values per variable for reliable differentiation
-  const PRIMES=[2,3,5,7,11,13,17,19,23,29];
   let pass=0;
   for(let trial=0;trial<3;trial++){
     try{
-      // Each unique variable name (case-sensitive) gets its own value
       const scope={};
       otherVars.forEach((v,i)=>{scope[v]=PRIMES[(i+trial*4)%PRIMES.length];});
-      const studentVal=math.evaluate(studentRhs,{...scope});
-      if(!isFinite(studentVal)||isNaN(studentVal))continue;
+      const studentPrep=prepForEval(studentRhs);
+      const studentVal=math.evaluate(studentPrep,{...scope});
+      console.log(`[trial ${trial}] scope:`,JSON.stringify(scope),'studentVal:',studentVal);
+      if(!isFinite(studentVal)||isNaN(studentVal)){console.log(`[trial ${trial}] skip — not finite`);continue;}
       const checkScope={...scope,[solveTarget]:studentVal};
       const eqParts=formulaEq.split('=');
-      const lv=math.evaluate(eqParts[0].trim(),checkScope);
-      const rv=math.evaluate(eqParts[1].trim(),checkScope);
+      const lv=math.evaluate(prepForEval(eqParts[0].trim()),checkScope);
+      const rv=math.evaluate(prepForEval(eqParts[1].trim()),checkScope);
       const err=Math.abs(lv-rv)/(Math.max(Math.abs(lv),Math.abs(rv),1e-10));
-      if(err<1e-6)pass++;
-    }catch(e){}
+      console.log(`[trial ${trial}] lv=${lv} rv=${rv} err=${err}`);
+      if(err<1e-4)pass++;
+    }catch(e){console.log(`[trial ${trial}] error:`,e.message);}
   }
+  console.log('[numericCheck] pass:',pass);
   return pass>=2;
 }
 
@@ -519,12 +551,13 @@ function checkAnswer(){
   setTimeout(()=>{
     let isCorrect=false,parseError=false;
     try{
-      const student=normalizeInput(raw),parts=student.split('=');
+      const studentNorm=normalizeExpr(raw),parts=studentNorm.split('=');
       if(parts.length!==2)throw new Error('no equals');
-      const studentRhs=preprocessAndNormalize(parts[1].trim());
-      const res=numericEquiv(ex.formula,ex.solveTarget,studentRhs);
+      const studentRhs=parts[1].trim();
+      console.log('[check] formula:',ex.formula,'| target:',ex.solveTarget,'| studentRhs:',studentRhs);
+      const res=numericCheck(ex.formula,ex.solveTarget,studentRhs);
       isCorrect=res===true;
-    }catch(e){parseError=true;}
+    }catch(e){parseError=true;console.log('[check] parseError:',e.message);}
     btnCheck.disabled=false;btnCheck.innerHTML='Controleer';
     if(parseError){
       fb.textContent='Ik begrijp je invoer niet. Controleer haakjes en symbolen.';
@@ -558,7 +591,8 @@ function showSolution(){
   const solEl=document.getElementById('solution-katex');
   const ans=ex.correctAnswer||ex.canonicalAnswer||null;
   if(ans){
-    const latex=`${ex.solveTarget} = ${exprToLatex(ans)}`;
+    const norm=normalizeExpr(ans);
+    const latex=`${ex.solveTarget} = ${exprToLatex(norm)}`;
     renderKaTeX(latex,solEl,false);
   }else{
     solEl.textContent='Geen uitwerking beschikbaar.';
