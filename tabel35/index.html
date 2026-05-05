@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tabel 35 · Formules omschrijven · NatuurkundeHub</title>
+<title>Natuurkunde formules · Formules omschrijven · NatuurkundeHub</title>
 <link rel="icon" type="image/svg+xml" href="../assets/logo/JK_dark.svg" id="favicon">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -16,69 +16,31 @@
 *{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg:#f8f9fa;
-  --bg-primary-rgb:248,249,250;
-  --bg-secondary:#ffffff;
-  --bg-card:#ffffff;
-  --bg-card-hover:#f0fafb;
-  --accent:#0BB5C8;
-  --accent-glow:rgba(11,181,200,0.2);
-  --accent-amber:#D4923A;
-  --accent-amber-glow:rgba(212,146,58,0.15);
-  --accent-dim:rgba(11,181,200,0.08);
-  --accent-border:rgba(11,181,200,0.2);
-  --text:#1A1A2E;
-  --text-secondary:#2d2d4a;
-  --text-muted:#64748b;
-  --border:rgba(11,181,200,0.12);
-  --border-solid:#d4e8ec;
-  --green:#16a34a;
-  --green-dim:rgba(22,163,74,0.1);
-  --green-border:rgba(22,163,74,0.3);
-  --red:#dc2626;
-  --red-dim:rgba(220,38,38,0.1);
-  --red-border:rgba(220,38,38,0.3);
-  --orange:#d97706;
-  --orange-dim:rgba(217,119,6,0.1);
-  --orange-border:rgba(217,119,6,0.3);
-  --glow-1:rgba(11,181,200,0.12);
-  --glow-2:rgba(212,146,58,0.08);
-  --font:'Space Grotesk',sans-serif;
-  --mono:'JetBrains Mono',monospace;
-  --radius:14px;
+  --bg:#f8f9fa;--bg-primary-rgb:248,249,250;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f0fafb;
+  --accent:#0BB5C8;--accent-glow:rgba(11,181,200,0.2);--accent-amber:#D4923A;--accent-amber-glow:rgba(212,146,58,0.15);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#1A1A2E;--text-secondary:#2d2d4a;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.12);--border-solid:#d4e8ec;
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.1);
+  --red:#dc2626;--red-dim:rgba(220,38,38,0.1);
+  --orange:#d97706;--orange-dim:rgba(217,119,6,0.1);
+  --glow-1:rgba(11,181,200,0.12);--glow-2:rgba(212,146,58,0.08);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--radius:14px;
 }
-
 [data-theme="dark"]{
-  --bg:#0f1117;
-  --bg-primary-rgb:15,17,23;
-  --bg-secondary:#161b26;
-  --bg-card:#1c2333;
-  --bg-card-hover:#222b3d;
-  --accent-glow:rgba(11,181,200,0.25);
-  --accent-amber-glow:rgba(212,146,58,0.2);
-  --accent-dim:rgba(11,181,200,0.08);
-  --accent-border:rgba(11,181,200,0.2);
-  --text:#e2e8f0;
-  --text-secondary:#94a3b8;
-  --text-muted:#64748b;
-  --border:rgba(11,181,200,0.08);
-  --border-solid:#1e2d44;
-  --green:#22c55e;
-  --green-dim:rgba(34,197,94,0.12);
-  --green-border:rgba(34,197,94,0.3);
-  --red:#ef4444;
-  --red-dim:rgba(239,68,68,0.12);
-  --red-border:rgba(239,68,68,0.3);
-  --orange:#f59e0b;
-  --orange-dim:rgba(245,158,11,0.1);
-  --orange-border:rgba(245,158,11,0.3);
-  --glow-1:rgba(11,181,200,0.15);
-  --glow-2:rgba(212,146,58,0.1);
+  --bg:#0f1117;--bg-primary-rgb:15,17,23;--bg-secondary:#161b26;--bg-card:#1c2333;--bg-card-hover:#222b3d;
+  --accent-glow:rgba(11,181,200,0.25);--accent-amber-glow:rgba(212,146,58,0.2);
+  --accent-dim:rgba(11,181,200,0.08);--accent-border:rgba(11,181,200,0.2);
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+  --border:rgba(11,181,200,0.08);--border-solid:#1e2d44;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --orange:#f59e0b;--orange-dim:rgba(245,158,11,0.1);
+  --glow-1:rgba(11,181,200,0.15);--glow-2:rgba(212,146,58,0.1);
 }
 
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(11,181,200,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,181,200,0.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
-
 .ambient-glow{position:fixed;width:500px;height:500px;border-radius:50%;filter:blur(120px);opacity:0.6;pointer-events:none;z-index:0}
 .ambient-glow--cyan{background:var(--glow-1);top:-150px;right:-100px}
 .ambient-glow--amber{background:var(--glow-2);bottom:-150px;left:-100px}
@@ -86,11 +48,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .theme-toggle{background:transparent;border:1px solid var(--border-solid);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text-muted);transition:all .2s;line-height:1}
 .theme-toggle:hover{border-color:var(--accent-border);color:var(--accent)}
 
-.app-header{
-  background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
-  padding:0 24px;display:flex;align-items:center;justify-content:space-between;min-height:56px;
-}
+.app-header{background:rgba(var(--bg-primary-rgb),0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 24px;display:flex;align-items:center;justify-content:space-between;min-height:56px}
 .header-left{display:flex;align-items:center;gap:12px}
 .app-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
 .app-title span{color:var(--accent)}
@@ -100,14 +58,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .section-title{font-size:15px;font-weight:700;color:var(--accent);padding-left:12px;border-left:3px solid var(--accent);margin-bottom:18px;letter-spacing:-0.2px}
 .section-title.amber{color:var(--accent-amber);border-left-color:var(--accent-amber)}
 
-/* Level toggle */
 .level-selector{display:inline-flex;gap:0;margin-bottom:28px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border-solid);background:var(--bg-secondary)}
 .lv-btn{padding:9px 24px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--text-muted);border:none;font-family:var(--font);transition:all .15s;border-right:1px solid var(--border-solid)}
 .lv-btn:last-child{border-right:none}
 .lv-btn:hover{background:var(--accent-dim);color:var(--text)}
 .lv-btn.active{background:var(--accent);color:#fff}
 
-/* Theme cards */
 .themes-card{background:var(--bg-card);border-radius:12px;border:1px solid var(--border-solid);padding:18px;margin-bottom:28px}
 .setting-label{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono)}
 .cat-btn-row{display:flex;gap:8px;margin-bottom:12px}
@@ -129,37 +85,52 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .ex-counter{font-size:13px;color:var(--text-muted);font-family:var(--mono)}
 
 .formula-card{background:var(--bg-card);border:1px solid var(--border-solid);border-radius:var(--radius);padding:32px 28px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.06)}
-.formula-display{text-align:center;padding:16px 0 20px;font-size:2rem;line-height:1.6;min-height:64px;overflow-x:auto}
+.formula-display{text-align:center;padding:20px 0 24px;font-size:2.2rem;line-height:1.6;min-height:72px;overflow-x:auto}
 .var-list{font-size:12px;color:var(--text-muted);margin-top:8px;padding-top:12px;border-top:1px solid var(--border-solid);font-style:italic;line-height:1.8}
-.question{font-size:15px;color:var(--text-secondary);margin-bottom:18px;padding-top:16px;border-top:1px solid var(--border-solid)}
-.question strong{color:var(--text);font-weight:700}
+.question{font-size:16px;color:var(--text-secondary);margin-bottom:16px;padding-top:16px;border-top:1px solid var(--border-solid);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.question-label{color:var(--text-secondary)}
+.question-target{font-size:1.4rem;color:var(--accent-amber);display:inline-flex;align-items:center}
 
-.input-wrap{margin-bottom:10px}
-.sym-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
-.sym-btn{padding:5px 11px;border:1px solid var(--border-solid);border-radius:6px;font-size:13px;cursor:pointer;background:var(--bg-secondary);color:var(--text-secondary);font-family:var(--mono);line-height:1.4;transition:all .15s}
-.sym-btn:hover{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
+/* Calc bar — groups don't break mid-group */
+.calc-bar{margin-bottom:10px}
+.calc-groups{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:10px}
+.calc-group{display:inline-flex;align-items:center;gap:4px;flex-shrink:0}
+.calc-group-label{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-right:2px;flex-shrink:0}
+.calc-group-sep{width:1px;background:var(--border-solid);align-self:stretch;margin:0 4px;flex-shrink:0}
+.calc-btn{padding:5px 10px;border:1px solid var(--border-solid);border-radius:6px;font-size:13px;cursor:pointer;background:var(--bg-card);color:var(--text-secondary);font-family:var(--mono);line-height:1.4;transition:all .15s;flex-shrink:0;white-space:nowrap}
+.calc-btn:hover{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
+.calc-btn.sub-active{background:rgba(212,146,58,0.15);border-color:rgba(212,146,58,0.4);color:var(--accent-amber)}
 
-.formula-input{width:100%;border:2px solid var(--border-solid);border-radius:10px;padding:12px 14px;font-size:15px;background:var(--bg-secondary);color:var(--text);font-family:var(--mono);transition:all .15s}
+.sub-indicator{font-size:11px;color:var(--accent-amber);font-family:var(--mono);margin-bottom:6px;display:none}
+.sub-indicator.visible{display:block}
+
+.input-hint{font-size:12px;color:var(--text-muted);margin-bottom:6px;font-family:var(--mono)}
+.formula-input{width:100%;border:2px solid var(--border-solid);border-radius:10px;padding:12px 14px;font-size:16px;background:var(--bg-secondary);color:var(--text);font-family:var(--mono);transition:all .15s}
 .formula-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 .formula-input.correct{border-color:var(--green);background:var(--green-dim)}
 .formula-input.wrong{border-color:var(--red);background:var(--red-dim)}
 
-.preview-wrap{min-height:32px;padding:8px 0 4px;font-size:1.1rem;color:var(--text-secondary);overflow-x:auto}
+.preview-wrap{min-height:36px;padding:8px 0 4px;font-size:1.15rem;color:var(--text-secondary);overflow-x:auto}
 
-.feedback-bar{font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;margin-bottom:12px;border-left:4px solid;display:none}
+.feedback-bar{font-size:14px;font-weight:600;padding:10px 16px;border-radius:10px;margin-bottom:10px;border-left:4px solid;display:none}
 .feedback-bar.ok{background:var(--green-dim);color:var(--green);border-color:var(--green);display:block}
 .feedback-bar.retry{background:var(--orange-dim);color:var(--orange);border-color:var(--orange);display:block}
-.feedback-bar.show{display:block}
+.hint-bar{font-size:13px;color:var(--text-secondary);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:8px;padding:10px 14px;margin-bottom:10px;display:none}
+.hint-bar.visible{display:block}
 
-.solution-reveal{background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:14px;color:var(--text-secondary);display:none}
-.solution-reveal strong{color:var(--text)}
-.katex-sol{font-size:1.1rem;padding:8px 0}
+.solution-reveal{background:var(--bg-secondary);border:1px solid var(--border-solid);border-radius:8px;padding:12px 16px;margin-bottom:12px;display:none}
+.solution-reveal .reveal-btn{width:100%;padding:10px;border:1.5px solid var(--accent-border);border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.solution-reveal .reveal-btn:hover{background:var(--accent);color:#fff}
+.solution-content{display:none}
+.solution-content strong{color:var(--text);font-size:14px}
+.katex-sol{font-size:1.2rem;padding:10px 0;text-align:center}
 
 .btn-row{display:flex;gap:10px}
 .qbtn{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border-solid);font-size:14px;cursor:pointer;background:var(--bg-secondary);color:var(--text-muted);font-family:var(--font);font-weight:600;transition:all .15s}
 .qbtn:hover{border-color:var(--accent-border);color:var(--accent)}
 .qbtn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .qbtn.primary:hover{background:#0999aa}
+.qbtn:disabled{opacity:0.4;cursor:default}
 
 .loading-indicator{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle}
 
@@ -173,8 +144,9 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   .app-header{padding:0 12px}
   .main{padding:20px 12px 60px}
   .formula-card{padding:24px 16px}
-  .formula-display{font-size:1.5rem}
+  .formula-display{font-size:1.6rem}
   .cat-check-grid{grid-template-columns:1fr}
+  .calc-btn{padding:5px 8px;font-size:12px}
 }
 </style>
 </head>
@@ -192,7 +164,7 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
     <span style="color:var(--text-muted);font-size:15px">›</span>
     <a href="../" style="color:var(--text-muted);font-size:15px;font-weight:600;text-decoration:none">Formules omschrijven</a>
     <span style="color:var(--text-muted);font-size:15px">›</span>
-    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Tabel 35</span>
+    <span style="color:var(--text-muted);font-size:15px;font-weight:600">Natuurkunde formules</span>
   </div>
   <button class="theme-toggle" onclick="toggleTheme()" title="Wissel thema" id="theme-btn">🌙</button>
 </div>
@@ -230,37 +202,39 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
   <div class="formula-card">
     <div class="formula-display" id="formula-display"></div>
     <div class="var-list" id="var-list"></div>
-    <div class="question" id="question-text"></div>
 
-    <div class="input-wrap">
-      <div class="sym-bar">
-        <button class="sym-btn" type="button" onclick="insertSym('^')">xⁿ (^)</button>
-        <button class="sym-btn" type="button" onclick="insertSym('sqrt(')">√(</button>
-        <button class="sym-btn" type="button" onclick="insertSym(')')">)</button>
-        <button class="sym-btn" type="button" onclick="insertSym('/')">÷ (/)</button>
-        <button class="sym-btn" type="button" onclick="insertSym('*')">× (*)</button>
-        <button class="sym-btn" type="button" onclick="insertSym('(')"> ( </button>
-        <button class="sym-btn" type="button" onclick="insertSym('_')">x_n (_)</button>
-      </div>
-      <input
-        class="formula-input"
-        id="answer-input"
-        type="text"
-        autocomplete="off"
-        spellcheck="false"
-        placeholder="Typ je antwoord, bijv. v = sqrt(2*Ek/m)"
-        onkeydown="handleInputKey(event)"
-        oninput="updatePreview()"
-      >
+    <div class="question" id="question-wrap">
+      <span class="question-label">Schrijf om naar:</span>
+      <span class="question-target" id="question-target"></span>
     </div>
 
+    <div class="calc-bar">
+      <div class="calc-groups" id="calc-groups"></div>
+    </div>
+    <div class="sub-indicator" id="sub-indicator">subscript actief — typ letters, dan spatie of ↑ om te eindigen</div>
+
+    <div class="input-hint">Typ bijv. <span style="font-family:var(--mono)">v = sqrt(2*Ek/m)</span> of gebruik de knoppen hierboven</div>
+    <input
+      class="formula-input"
+      id="answer-input"
+      type="text"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="... = ..."
+      onkeydown="handleInputKey(event)"
+      oninput="onInputChange()"
+    >
     <div class="preview-wrap" id="preview-wrap"></div>
   </div>
 
   <div class="feedback-bar" id="feedback"></div>
+  <div class="hint-bar" id="hint-bar"></div>
   <div class="solution-reveal" id="solution-reveal">
-    <strong>Correcte omschrijving:</strong>
-    <div class="katex-sol" id="solution-katex"></div>
+    <button class="reveal-btn" id="btn-reveal" onclick="showSolution()">Bekijk correcte omschrijving</button>
+    <div class="solution-content" id="solution-content">
+      <strong>Correcte omschrijving:</strong>
+      <div class="katex-sol" id="solution-katex"></div>
+    </div>
   </div>
 
   <div class="btn-row">
@@ -278,36 +252,75 @@ footer{text-align:center;padding:32px 0;border-top:1px solid var(--border);font-
 
 <script>
 // ── THEME ──
-function applyTheme(theme){
-  document.documentElement.setAttribute('data-theme',theme);
-  const logo=document.querySelector('.header-logo');
-  const footerLogo=document.querySelector('.footer-logo');
-  const btn=document.getElementById('theme-btn');
-  const favicon=document.getElementById('favicon');
-  if(theme==='dark'){
-    if(logo) logo.src='../assets/logo/JK_dark.svg';
-    if(footerLogo) footerLogo.src='../assets/logo/JK_white.svg';
-    if(favicon) favicon.href='../assets/logo/JK_dark.svg';
-    if(btn) btn.textContent='☀️';
-  } else {
-    if(logo) logo.src='../assets/logo/JK_light.svg';
-    if(footerLogo) footerLogo.src='../assets/logo/JK_black.svg';
-    if(favicon) favicon.href='../assets/logo/JK_light.svg';
-    if(btn) btn.textContent='🌙';
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const logo=document.querySelector('.header-logo'),fl=document.querySelector('.footer-logo'),
+        btn=document.getElementById('theme-btn'),fav=document.getElementById('favicon');
+  if(t==='dark'){
+    if(logo)logo.src='../assets/logo/JK_dark.svg';if(fl)fl.src='../assets/logo/JK_white.svg';
+    if(fav)fav.href='../assets/logo/JK_dark.svg';if(btn)btn.textContent='☀️';
+  }else{
+    if(logo)logo.src='../assets/logo/JK_light.svg';if(fl)fl.src='../assets/logo/JK_black.svg';
+    if(fav)fav.href='../assets/logo/JK_light.svg';if(btn)btn.textContent='🌙';
   }
 }
-function toggleTheme(){
-  const current=document.documentElement.getAttribute('data-theme')||'light';
-  const next=current==='dark'?'light':'dark';
-  localStorage.setItem('nh-theme',next);
-  applyTheme(next);
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'light',n=c==='dark'?'light':'dark';localStorage.setItem('nh-theme',n);applyTheme(n);}
+(function(){const s=localStorage.getItem('nh-theme');if(s)applyTheme(s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)applyTheme('dark');else applyTheme('light');})();
+
+math.config({implicit:'multiply'});
+
+// ── GREEK MAPS ──
+const GREEK_TO_LATEX={'α':'\\alpha','β':'\\beta','γ':'\\gamma','δ':'\\delta','η':'\\eta','λ':'\\lambda','ρ':'\\rho','ω':'\\omega','φ':'\\phi','Δ':'\\Delta','π':'\\pi'};
+const GREEK_TO_MATHJS={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta','λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi'};
+
+// ── CALC BAR ──
+const CALC_GROUPS=[
+  {label:'Structuur',btns:[{l:'(',v:'('},{l:')',v:')'},{l:'xⁿ',v:'^'},{l:'x²',v:'^2'},{l:'√(',v:'sqrt('}]},
+  {label:'Bewerkingen',btns:[{l:'×',v:'*'},{l:'÷',v:'/'},{l:'+',v:'+'},{l:'−',v:'-'}]},
+  {label:'Grieks',btns:[{l:'Δ',v:'Δ'},{l:'λ',v:'λ'},{l:'π',v:'π'},{l:'ρ',v:'ρ'},{l:'φ',v:'φ'},{l:'η',v:'η'},{l:'ω',v:'ω'}]},
+  {label:'Subscript',btns:[{l:'x_n',v:'_',id:'btn-sub'},{l:'↑',v:null,id:'btn-sub-end'}]},
+];
+
+function buildCalcBar(){
+  const wrap=document.getElementById('calc-groups');
+  wrap.innerHTML='';
+  CALC_GROUPS.forEach((g,gi)=>{
+    if(gi>0){const sep=document.createElement('div');sep.className='calc-group-sep';wrap.appendChild(sep);}
+    const grp=document.createElement('div');grp.className='calc-group';
+    const lbl=document.createElement('span');lbl.className='calc-group-label';lbl.textContent=g.label;
+    grp.appendChild(lbl);
+    g.btns.forEach(b=>{
+      const btn=document.createElement('button');
+      btn.className='calc-btn';btn.type='button';btn.textContent=b.l;
+      if(b.id)btn.id=b.id;
+      btn.addEventListener('click',()=>handleCalcBtn(b));
+      grp.appendChild(btn);
+    });
+    wrap.appendChild(grp);
+  });
 }
-(function(){
-  const saved=localStorage.getItem('nh-theme');
-  if(saved){applyTheme(saved);}
-  else if(window.matchMedia('(prefers-color-scheme: dark)').matches){applyTheme('dark');}
-  else{applyTheme('light');}
-})();
+
+let subMode=false;
+function handleCalcBtn(b){
+  const inp=document.getElementById('answer-input');
+  if(inp.readOnly)return;
+  if(b.id==='btn-sub-end'){setSubMode(false);inp.focus();return;}
+  if(b.v===null)return;
+  if(b.v==='_'){insertAt(inp,'_');setSubMode(true);}
+  else{insertAt(inp,b.v);if(subMode&&'+-*/()^= '.includes(b.v))setSubMode(false);}
+  onInputChange();
+}
+function setSubMode(on){
+  subMode=on;
+  document.getElementById('sub-indicator').classList.toggle('visible',on);
+  const btn=document.getElementById('btn-sub');if(btn)btn.classList.toggle('sub-active',on);
+}
+function insertAt(inp,sym){
+  const s=inp.selectionStart,e=inp.selectionEnd;
+  inp.value=inp.value.slice(0,s)+sym+inp.value.slice(e);
+  inp.selectionStart=inp.selectionEnd=s+sym.length;
+  inp.focus();
+}
 
 // ── SETTINGS ──
 let currentNiveau='havo';
@@ -330,10 +343,7 @@ function renderThemaChecks(){
 }
 
 function selectAllThemas(v){
-  document.querySelectorAll('.thema-chk').forEach(c=>{
-    if(!v){c.checked=false;}
-    else {c.checked=true;}
-  });
+  document.querySelectorAll('.thema-chk').forEach(c=>{c.checked=v;});
 }
 
 function getActiveThemas(){
@@ -344,20 +354,13 @@ function getFilteredFormulas(){
   const themas=getActiveThemas();
   return FORMULAS.filter(f=>{
     const themaOk=themas.includes(f.thema);
-    const niveauOk=(f.niveau==='beide')||(currentNiveau==='vwo')|| (f.niveau==='havo');
+    const niveauOk=(f.niveau==='beide')||(currentNiveau==='vwo')||(f.niveau==='havo');
     return themaOk&&niveauOk;
   });
 }
 
 // ── STATE ──
-let state={
-  formula:null,
-  solveTarget:null,
-  attempts:0,
-  checked:false,
-  counter:0,
-  lastKey:null, // prevent same formula+target twice in a row
-};
+let state={formula:null,solveTarget:null,attempts:0,checked:false,counter:0,lastKey:null};
 
 function startExercise(){
   const pool=getFilteredFormulas();
@@ -371,26 +374,23 @@ function nextExercise(){
   state.counter++;
   state.attempts=0;
   state.checked=false;
+  setSubMode(false);
 
   const pool=getFilteredFormulas();
   if(!pool.length){showPanel('settings');return;}
 
-  // Pick formula+target, avoid repeat of last
-  let formula,solveTarget,key;
-  let tries=0;
+  let formula,solveTarget,key,tries=0;
   do{
     formula=pool[Math.floor(Math.random()*pool.length)];
     const targets=formula.solveFor;
     solveTarget=targets[Math.floor(Math.random()*targets.length)];
     key=formula.id+'::'+solveTarget;
     tries++;
-  } while(key===state.lastKey && tries<20);
+  } while(key===state.lastKey&&tries<20);
   state.lastKey=key;
-
   state.formula=formula;
   state.solveTarget=solveTarget;
 
-  // Badge
   const thema=THEMAS[formula.thema];
   const badge=document.getElementById('ex-badge');
   badge.textContent=thema.letter+' · '+thema.label.split(' ')[0];
@@ -400,43 +400,43 @@ function nextExercise(){
 
   document.getElementById('ex-counter').textContent=`Opgave ${state.counter}`;
 
-  // Formula
   const displayEl=document.getElementById('formula-display');
   displayEl.innerHTML='';
   renderKaTeX(formula.display,displayEl,true);
 
-  // Variables list
   const varList=document.getElementById('var-list');
   const entries=Object.entries(formula.variables);
   if(entries.length){
     const inner=entries.map(([sym,meaning])=>{
       const span=document.createElement('span');
-      const katexSpan=document.createElement('span');
-      try{katex.render(sym,katexSpan,{throwOnError:false,displayMode:false});}
-      catch{katexSpan.textContent=sym;}
-      return katexSpan.outerHTML+' = '+meaning;
+      const ks=document.createElement('span');
+      try{katex.render(sym,ks,{throwOnError:false,displayMode:false});}
+      catch{ks.textContent=sym;}
+      return ks.outerHTML+' = '+meaning;
     }).join(' &nbsp;·&nbsp; ');
     varList.innerHTML='waarbij '+inner;
   } else {
     varList.innerHTML='';
   }
 
-  // Question
-  const qEl=document.getElementById('question-text');
-  const targetSpan=document.createElement('span');
-  try{katex.render(solveTarget,targetSpan,{throwOnError:false,displayMode:false});}
-  catch{targetSpan.textContent=solveTarget;}
-  qEl.innerHTML='Schrijf de formule om naar: <strong>'+targetSpan.outerHTML+'</strong>';
+  const tEl=document.getElementById('question-target');
+  tEl.innerHTML='';
+  renderKaTeX(solveTarget,tEl,false);
 
-  // Reset input
   const inp=document.getElementById('answer-input');
-  inp.value='';
-  inp.className='formula-input';
-  inp.readOnly=false;
+  inp.value='';inp.className='formula-input';inp.readOnly=false;
+  const plainTarget=solveTarget.replace(/\\[a-zA-Z]+/g,'').replace(/[{}_^]/g,'').trim()||solveTarget;
+  inp.placeholder=`${plainTarget} = ...`;
 
   document.getElementById('preview-wrap').innerHTML='';
   document.getElementById('feedback').className='feedback-bar';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('hint-bar').className='hint-bar';
+  document.getElementById('hint-bar').textContent='';
   document.getElementById('solution-reveal').style.display='none';
+  document.getElementById('btn-reveal').style.display='';
+  document.getElementById('solution-content').style.display='none';
+  document.getElementById('solution-katex').innerHTML='';
 
   const btnCheck=document.getElementById('btn-check');
   btnCheck.textContent='Controleer';
@@ -448,143 +448,126 @@ function nextExercise(){
 
 function skipExercise(){
   if(state.checked){nextExercise();return;}
-  revealSolution();
   const fb=document.getElementById('feedback');
-  fb.textContent='Overgeslagen — bekijk de correcte omschrijving hieronder.';
-  fb.className='feedback-bar retry show';
+  fb.textContent='Overgeslagen. Bekijk hieronder het correcte antwoord.';
+  fb.className='feedback-bar retry';
+  revealSolution();
   state.checked=true;
   document.getElementById('btn-check').textContent='Volgende opgave';
   document.getElementById('btn-skip').style.display='none';
 }
 
 // ── INPUT ──
-function insertSym(sym){
-  const inp=document.getElementById('answer-input');
-  if(inp.readOnly) return;
-  const s=inp.selectionStart,e=inp.selectionEnd;
-  inp.value=inp.value.slice(0,s)+sym+inp.value.slice(e);
-  inp.selectionStart=inp.selectionEnd=s+sym.length;
-  inp.focus();
-  updatePreview();
-}
-
 function handleInputKey(e){
-  if(e.key==='Tab'){e.preventDefault();insertSym('    ');}
-  if(e.key==='Enter'){handleCheckBtn();}
+  if(e.key==='Enter'){handleCheckBtn();return;}
+  if(subMode){
+    if(e.key===' '){e.preventDefault();setSubMode(false);return;}
+    if(e.key==='ArrowUp'){e.preventDefault();setSubMode(false);return;}
+    if('+-*/()^='.includes(e.key))setSubMode(false);
+  }
 }
 
-function inputToLatex(raw){
-  let s=raw.trim();
-  s=s.replace(/\^(\d+)/g,'^{$1}');
+// ── EXPRESSION → LATEX ──
+function exprToLatex(expr){
+  if(!expr)return'';
+  let s=expr.trim();
+  // Unicode Greek → LaTeX
+  for(const[u,l]of Object.entries(GREEK_TO_LATEX))s=s.split(u).join(l);
+  // sqrt
+  s=s.replace(/sqrt\(([^()]*)\)/g,'\\sqrt{$1}');
   s=s.replace(/sqrt\(([^)]*)\)/g,'\\sqrt{$1}');
-  s=s.replace(/([a-zA-Z0-9_]+)\s*\/\s*([a-zA-Z0-9_^{}\\]+)/g,'\\dfrac{$1}{$2}');
+  // Exponents
+  s=s.replace(/\^(-?\d+(?:\.\d+)?)/g,'^{$1}');
+  s=s.replace(/\^([a-zA-Z_][a-zA-Z0-9_]*)/g,'^{$1}');
+  // Subscripts: v_max → v_{max}, a_gem → a_{gem}
+  s=s.replace(/_([a-zA-Z0-9]+)/g,'_{$1}');
+  // Fractions (3 passes for nested)
+  for(let i=0;i<3;i++){
+    s=s.replace(/\(([^()]+)\)\s*\/\s*\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+    s=s.replace(/\(([^()]+)\)\s*\/\s*([a-zA-Z0-9_.^{}\\]+)/g,'\\dfrac{$1}{$2}');
+    s=s.replace(/([a-zA-Z0-9_.^{}\\]+)\s*\/\s*\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+    s=s.replace(/([a-zA-Z0-9_^{}\\]+)\s*\/\s*([a-zA-Z0-9_^{}\\]+)/g,'\\dfrac{$1}{$2}');
+  }
   s=s.replace(/\*/g,'\\cdot ');
   return s;
+}
+
+function onInputChange(){
+  if(subMode){
+    const inp=document.getElementById('answer-input');
+    const pos=inp.selectionStart,val=inp.value,lastChar=val[pos-1];
+    if(lastChar&&'+-*/()^= '.includes(lastChar))setSubMode(false);
+  }
+  updatePreview();
 }
 
 function updatePreview(){
   const raw=document.getElementById('answer-input').value;
   const wrap=document.getElementById('preview-wrap');
   if(!raw.trim()){wrap.innerHTML='';return;}
-  try{
-    const latex=inputToLatex(raw);
-    katex.render(latex,wrap,{throwOnError:false,displayMode:false});
-  } catch(e){
-    wrap.innerHTML=`<span style="color:var(--text-muted);font-size:12px">${raw}</span>`;
-  }
+  try{katex.render(exprToLatex(raw),wrap,{throwOnError:false,displayMode:false});}
+  catch(e){wrap.innerHTML=`<span style="color:var(--text-muted);font-size:12px">${raw}</span>`;}
 }
 
 function renderKaTeX(latex,el,display){
-  try{katex.render(latex,el,{throwOnError:false,displayMode:display});}
-  catch(e){el.textContent=latex;}
+  try{katex.render(latex,el,{throwOnError:false,displayMode:display});}catch(e){el.textContent=latex;}
 }
 
-// ── CHECK ──
-function handleCheckBtn(){
-  if(state.checked){nextExercise();return;}
-  checkAnswer();
-}
+// ── PREPROCESS + NORMALISE ──
+const BUILTINS_SET=new Set(['sqrt','pi','sin','cos','tan','log','exp','abs','alpha','beta','gamma','delta','eta','lambda','rho','omega','phi','Delta','nthRoot','e','asin','acos','atan']);
 
 function normalizeInput(raw){
-  return raw.trim()
-    .replace(/\s+/g,' ')
-    .replace(/√\(/g,'sqrt(')
-    .replace(/·/g,'*')
-    .replace(/×/g,'*')
-    .replace(/÷/g,'/');
+  let s=raw.trim().replace(/\s+/g,' ')
+    .replace(/√\(/g,'sqrt(').replace(/·/g,'*').replace(/×/g,'*').replace(/÷/g,'/');
+  for(const[u,n]of Object.entries(GREEK_TO_MATHJS))s=s.split(u).join(n);
+  return s;
 }
 
-// ── NUMERIC EQUIVALENCE CHECK ──
-const MATH_BUILTINS=new Set(['sqrt','sin','cos','tan','log','exp','pi','e','abs','asin','acos','atan','sign','round','floor','ceil','pow','nthRoot']);
+function preprocessAndNormalize(expr){
+  const BUILTINS=['sqrt','pi','sin','cos','tan','log','exp','abs','alpha','beta','gamma','delta','eta','lambda','rho','omega','phi','Delta','nthRoot'];
+  let s=expr;
+  const map=[];
+  for(const w of BUILTINS){
+    const re=new RegExp('\\b'+w+'\\b','g');
+    s=s.replace(re,()=>{map.push(w);return`\x00${map.length-1}\x00`;});
+  }
+  // Wrap implicit denominators: f/pwa → f/(p*w*a)
+  s=s.replace(/\/(?!\()([a-zA-Z][a-zA-Z]+)(?=[^a-zA-Z0-9_]|$)/g,(m,letters)=>'/('+letters+')');
+  // Expand implicit multiply
+  s=s.replace(/(\d)([a-zA-Z])/g,'$1*$2');
+  s=s.replace(/([a-zA-Z])([a-zA-Z])/g,'$1*$2');
+  map.forEach((w,i)=>{s=s.split(`\x00${i}\x00`).join(w);});
+  return s;
+}
 
-function numericEquiv(formulaEq, solveTarget, studentRhs){
+// ── NUMERIC CHECK ──
+function numericEquiv(formulaEq,solveTarget,studentRhs){
   const combined=formulaEq+' '+studentRhs;
   const tokens=(combined.match(/\b[a-zA-Z][a-zA-Z0-9_]*\b/g)||[]);
-  const allVars=[...new Set(tokens)].filter(t=>!MATH_BUILTINS.has(t));
-
-  const fTokens=(formulaEq.match(/\b[a-zA-Z][a-zA-Z0-9_]*\b/g)||[])
-    .filter(t=>!MATH_BUILTINS.has(t));
-  if(!fTokens.includes(solveTarget)){
-    console.log(`[numericEquiv] "${solveTarget}" not in formula vars [${[...new Set(fTokens)]}] — cannot verify`);
-    return null;
-  }
-
+  const allVars=[...new Set(tokens)].filter(t=>!BUILTINS_SET.has(t));
+  const fTokens=(formulaEq.match(/\b[a-zA-Z][a-zA-Z0-9_]*\b/g)||[]).filter(t=>!BUILTINS_SET.has(t));
+  if(!fTokens.includes(solveTarget))return null;
   const otherVars=allVars.filter(v=>v!==solveTarget);
-  const VALS=[2,3,5,7,11,13,17];
+  const PRIMES=[2,3,5,7,11,13,17,19,23,29];
   let pass=0;
-
   for(let trial=0;trial<3;trial++){
     try{
       const scope={};
-      otherVars.forEach((v,i)=>{ scope[v]=VALS[(i+trial*3)%VALS.length]; });
-
+      otherVars.forEach((v,i)=>{scope[v]=PRIMES[(i+trial*4)%PRIMES.length];});
       const studentVal=math.evaluate(studentRhs,{...scope});
-      console.log(`[numericEquiv] trial ${trial}: scope=${JSON.stringify(scope)}, ${solveTarget}=${studentVal}`);
-
-      if(!isFinite(studentVal)||isNaN(studentVal)){
-        console.log(`[numericEquiv] trial ${trial}: non-finite, skipping`);
-        continue;
-      }
-
+      if(!isFinite(studentVal)||isNaN(studentVal))continue;
       const checkScope={...scope,[solveTarget]:studentVal};
       const eqParts=formulaEq.split('=');
       const lv=math.evaluate(eqParts[0].trim(),checkScope);
       const rv=math.evaluate(eqParts[1].trim(),checkScope);
       const err=Math.abs(lv-rv)/(Math.max(Math.abs(lv),Math.abs(rv),1e-10));
-      console.log(`[numericEquiv] trial ${trial}: LHS=${lv}, RHS=${rv}, relErr=${err}`);
-
-      if(err<1e-6) pass++;
-    } catch(e){
-      console.log(`[numericEquiv] trial ${trial}: exception — ${e.message}`);
-    }
+      if(err<1e-6)pass++;
+    }catch(e){}
   }
-
-  console.log(`[numericEquiv] pass=${pass}/3`);
   return pass>=2;
 }
 
-function buildCorrectExpr(formula,target){
-  // Use Algebrite to solve canonical equation for target
-  const canonical=formula.canonical;
-  try{
-    // canonical is like 'Ek = 0.5 * m * v^2'
-    const parts=canonical.split('=');
-    if(parts.length!==2) return null;
-    const lhs=parts[0].trim();
-    const rhs=parts[1].trim();
-    const expr=`${rhs} - ${lhs}`;
-
-    // Map LaTeX target to canonical variable name
-    // Simple heuristic: strip LaTeX commands
-    const canonicalTarget=latexToCanonical(target);
-
-    const res=Algebrite.run(`solve(${expr}, ${canonicalTarget})`);
-    return res.replace(/\[|\]/g,'').trim();
-  } catch(e){ return null; }
-}
-
 function latexToCanonical(latex){
-  // Specific \Delta substitutions must come before stripping backslashes
   return latex
     .replace(/\\Delta\s*T/g,'dT')
     .replace(/\\Delta\s*V/g,'dV')
@@ -598,97 +581,99 @@ function latexToCanonical(latex){
     .replace(/\s+/g,'');
 }
 
+function buildCorrectExpr(formula,target){
+  const canonical=formula.canonical;
+  try{
+    const parts=canonical.split('=');
+    if(parts.length!==2)return null;
+    const expr=`${parts[1].trim()} - ${parts[0].trim()}`;
+    const canonicalTarget=latexToCanonical(target);
+    const res=Algebrite.run(`solve(${expr}, ${canonicalTarget})`);
+    return res.replace(/\[|\]/g,'').trim();
+  }catch(e){return null;}
+}
+
+// ── CHECK ──
+function handleCheckBtn(){if(state.checked){nextExercise();return;}checkAnswer();}
+
 function checkAnswer(){
-  const {formula,solveTarget}=state;
+  const{formula,solveTarget}=state;
   const raw=document.getElementById('answer-input').value;
-  if(!raw.trim()) return;
+  if(!raw.trim())return;
 
-  const inp=document.getElementById('answer-input');
-  const fb=document.getElementById('feedback');
-  const btnCheck=document.getElementById('btn-check');
+  const inp=document.getElementById('answer-input'),fb=document.getElementById('feedback'),
+        hintBar=document.getElementById('hint-bar'),btnCheck=document.getElementById('btn-check');
 
-  btnCheck.disabled=true;
-  btnCheck.innerHTML='<span class="loading-indicator"></span>Controleren…';
+  btnCheck.disabled=true;btnCheck.innerHTML='<span class="loading-indicator"></span>Controleren…';
 
   setTimeout(()=>{
-    let isCorrect=false;
-    let parseError=false;
-
+    let isCorrect=false,parseError=false,cannotVerify=false;
     try{
       const student=normalizeInput(raw);
       const parts=student.split('=');
-      if(parts.length!==2) throw new Error('no equals');
-      const studentRhs=parts[1].trim();
-
+      if(parts.length!==2)throw new Error('no equals');
+      const studentRhs=preprocessAndNormalize(parts[1].trim());
       const canonicalTarget=latexToCanonical(solveTarget);
-      console.log(`[check] canonical="${formula.canonical}" target="${canonicalTarget}" studentRhs="${studentRhs}"`);
-      const checkResult=numericEquiv(formula.canonical, canonicalTarget, studentRhs);
-      console.log(`[check] numericEquiv → ${checkResult}`);
+      const checkResult=numericEquiv(formula.canonical,canonicalTarget,studentRhs);
+      if(checkResult===null){cannotVerify=true;}
+      else{isCorrect=checkResult;}
+    }catch(e){parseError=true;}
 
-      if(checkResult===null){
-        // Variable name mismatch between LaTeX display and canonical — can't verify automatically
-        btnCheck.disabled=false;
-        btnCheck.innerHTML='Volgende opgave';
-        fb.textContent='Kan dit antwoord niet automatisch controleren — vergelijk zelf met de uitwerking.';
-        fb.className='feedback-bar retry show';
-        revealSolution();
-        state.checked=true;
-        document.getElementById('btn-skip').style.display='none';
-        return;
-      }
-
-      isCorrect=checkResult;
-    } catch(e){
-      parseError=true;
-    }
-
-    btnCheck.disabled=false;
-    btnCheck.innerHTML='Controleer';
+    btnCheck.disabled=false;btnCheck.innerHTML='Controleer';
 
     if(parseError){
-      fb.textContent='Ik begrijp je invoer niet — controleer haakjes en symbolen.';
-      fb.className='feedback-bar retry show';
+      fb.textContent='Ik begrijp je invoer niet. Controleer haakjes en symbolen.';
+      fb.className='feedback-bar retry';return;
+    }
+
+    if(cannotVerify){
+      fb.textContent='Kan dit antwoord niet automatisch controleren. Vergelijk zelf met de uitwerking.';
+      fb.className='feedback-bar retry';
+      revealSolution();
+      state.checked=true;btnCheck.textContent='Volgende opgave';
+      document.getElementById('btn-skip').style.display='none';
       return;
     }
 
     if(isCorrect){
-      fb.textContent='Goed! ✓';
-      fb.className='feedback-bar ok';
-      inp.classList.add('correct');
-      state.checked=true;
-      btnCheck.textContent='Volgende opgave';
-      btnCheck.className='qbtn primary';
+      fb.textContent='Goed! ✓';fb.className='feedback-bar ok';
+      hintBar.className='hint-bar';inp.classList.add('correct');
+      state.checked=true;btnCheck.textContent='Volgende opgave';btnCheck.className='qbtn primary';
       document.getElementById('btn-skip').style.display='none';
-    } else {
+    }else{
       state.attempts++;
-      if(state.attempts>=2){
-        fb.textContent='Niet correct — bekijk de correcte omschrijving hieronder.';
-        fb.className='feedback-bar retry show';
-        revealSolution();
-        state.checked=true;
-        btnCheck.textContent='Volgende opgave';
-        document.getElementById('btn-skip').style.display='none';
-        inp.classList.add('wrong');
-      } else {
-        fb.textContent='Niet helemaal — probeer opnieuw.';
-        fb.className='feedback-bar retry show';
+      if(state.attempts===1){
+        fb.textContent='Niet correct, probeer het nog eens.';
+        fb.className='feedback-bar retry';
+      }else{
+        fb.textContent='Niet correct.';fb.className='feedback-bar retry';
+        hintBar.textContent='Tip: isoleer de gevraagde grootheid door beide kanten van de vergelijking stap voor stap te bewerken.';
+        hintBar.className='hint-bar visible';
+        document.getElementById('solution-reveal').style.display='block';
+        document.getElementById('solution-content').style.display='none';
+        state.checked=true;btnCheck.textContent='Volgende opgave';btnCheck.className='qbtn primary';
+        document.getElementById('btn-skip').style.display='none';inp.classList.add('wrong');
       }
     }
   },50);
 }
 
-function revealSolution(){
-  const {formula,solveTarget}=state;
-  const div=document.getElementById('solution-reveal');
+function showSolution(){
+  const{formula,solveTarget}=state;
+  document.getElementById('btn-reveal').style.display='none';
+  const sc=document.getElementById('solution-content');sc.style.display='block';
   const solEl=document.getElementById('solution-katex');
-  div.style.display='block';
   const correctExpr=buildCorrectExpr(formula,solveTarget);
-  const canonicalTarget=latexToCanonical(solveTarget);
   if(correctExpr){
-    renderKaTeX(`${canonicalTarget} = ${inputToLatex(correctExpr)}`,solEl,false);
-  } else {
+    renderKaTeX(`${solveTarget} = ${exprToLatex(correctExpr)}`,solEl,false);
+  }else{
     solEl.textContent='Zie formuleblad.';
   }
+}
+
+function revealSolution(){
+  document.getElementById('solution-reveal').style.display='block';
+  showSolution();
 }
 
 // ── PANELS ──
@@ -698,6 +683,7 @@ function showPanel(name){
 }
 
 // Init
+buildCalcBar();
 renderThemaChecks();
 </script>
 </body>
