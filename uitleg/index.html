@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="../js/keyboard.js"></script>
+<script src="../js/katex-init.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -336,60 +338,14 @@ const PRAC_CALC_GROUPS=[
   {label:'Subscript',btns:[{l:'x_n',v:'_',id:'prac-btn-sub'},{l:'↑',v:null,id:'prac-btn-sub-end'}]},
 ];
 
-let pracSubMode=false;
-
-function buildPracCalcBar(){
-  const wrap=document.getElementById('prac-calc-groups');
-  wrap.innerHTML='';
-  PRAC_CALC_GROUPS.forEach((g,gi)=>{
-    if(gi>0){const sep=document.createElement('div');sep.className='calc-group-sep';wrap.appendChild(sep);}
-    const grp=document.createElement('div');grp.className='calc-group';
-    const lbl=document.createElement('span');lbl.className='calc-group-label';lbl.textContent=g.label;
-    grp.appendChild(lbl);
-    g.btns.forEach(b=>{
-      const btn=document.createElement('button');
-      btn.className='calc-btn';btn.type='button';btn.textContent=b.l;
-      if(b.id)btn.id=b.id;
-      btn.addEventListener('click',()=>handlePracCalcBtn(b));
-      grp.appendChild(btn);
-    });
-    wrap.appendChild(grp);
-  });
-}
-
-function handlePracCalcBtn(b){
-  const inp=document.getElementById('prac-input');
-  if(b.id==='prac-btn-sub-end'){setPracSubMode(false);inp.focus();return;}
-  if(b.v===null)return;
-  if(b.v==='_'){insertAtEl(inp,'_');setPracSubMode(true);}
-  else{insertAtEl(inp,b.v);if(pracSubMode&&'+-*/()^= '.includes(b.v))setPracSubMode(false);}
-}
-
-function setPracSubMode(on){
-  pracSubMode=on;
-  document.getElementById('prac-sub-indicator').classList.toggle('visible',on);
-  const btn=document.getElementById('prac-btn-sub');if(btn)btn.classList.toggle('sub-active',on);
-}
-
-function insertAtEl(inp,sym){
-  const s=inp.selectionStart,e=inp.selectionEnd;
-  inp.value=inp.value.slice(0,s)+sym+inp.value.slice(e);
-  inp.selectionStart=inp.selectionEnd=s+sym.length;
-  inp.focus();
-}
+let pracKb;
 
 function pracHandleKey(e){
   if(e.key==='Enter')checkPractice();
-  if(pracSubMode){
-    if(e.key===' '){e.preventDefault();setPracSubMode(false);}
-    if(e.key==='ArrowUp'){e.preventDefault();setPracSubMode(false);}
+  if(pracKb&&pracKb.isSubMode()){
+    if(e.key===' '){e.preventDefault();pracKb.setSubMode(false);}
+    if(e.key==='ArrowUp'){e.preventDefault();pracKb.setSubMode(false);}
   }
-}
-
-// ── KATEX HELPER ──
-function rk(latex,el,display){
-  try{katex.render(latex,el,{throwOnError:false,displayMode:!!display});}
-  catch(e){el.textContent=latex;}
 }
 
 function makeStepRow(steps,container){
@@ -398,21 +354,21 @@ function makeStepRow(steps,container){
     const lbl=document.createElement('span');lbl.className='step-label';lbl.textContent=s.label;
     const arr=document.createElement('span');arr.className='step-arrow';arr.textContent='→';
     const fml=document.createElement('span');fml.className='fml';
-    rk(s.latex,fml,false);
+    renderKaTeX(s.latex,fml,false);
     row.appendChild(lbl);row.appendChild(arr);row.appendChild(fml);
     container.appendChild(row);
   });
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
-  buildPracCalcBar();
+  pracKb=initKeyboard('prac-input',PRAC_CALC_GROUPS,{containerId:'prac-calc-groups',subIndicatorId:'prac-sub-indicator'});
 
   // STAP 1
-  rk('F = m \\cdot a',document.getElementById('f-start'),true);
-  rk('m',document.getElementById('target-span'),false);
+  renderKaTeX('F = m \\cdot a',document.getElementById('f-start'),true);
+  renderKaTeX('m',document.getElementById('target-span'),false);
 
   // STAP 2 — F = m·a → m
-  rk('m',document.getElementById('target-span-2'),false);
+  renderKaTeX('m',document.getElementById('target-span-2'),false);
   document.getElementById('formula-display-2').textContent='F = m · a';
 
   makeStepRow([
@@ -423,8 +379,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   ],document.getElementById('steps-row'));
 
   // STAP 2 — ander voorbeeld: Ek = ½mv² → v
-  rk('E_k = \\dfrac{1}{2} m v^2',document.getElementById('ex2-start'),false);
-  rk('v',document.getElementById('ex2-target'),false);
+  renderKaTeX('E_k = \\dfrac{1}{2} m v^2',document.getElementById('ex2-start'),false);
+  renderKaTeX('v',document.getElementById('ex2-target'),false);
 
   makeStepRow([
     {label:'Gegeven', latex:'E_k = \\tfrac{1}{2} m v^2'},
@@ -434,8 +390,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   ],document.getElementById('ex2-steps'));
 
   // STAP 3 — v_gem = (v_b + v_e)/2 → v_b
-  rk('v_{gem} = \\dfrac{v_b + v_e}{2}',document.getElementById('ex3a-start'),false);
-  rk('v_b',document.getElementById('ex3a-target'),false);
+  renderKaTeX('v_{gem} = \\dfrac{v_b + v_e}{2}',document.getElementById('ex3a-start'),false);
+  renderKaTeX('v_b',document.getElementById('ex3a-target'),false);
 
   makeStepRow([
     {label:'Gegeven', latex:'v_{gem} = \\dfrac{v_b + v_e}{2}'},
@@ -444,8 +400,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   ],document.getElementById('ex3a-steps'));
 
   // STAP 4 — E = P·(t₂ − t₁) → t₁
-  rk('E = P \\cdot (t_2 - t_1)',document.getElementById('ex4a-start'),false);
-  rk('t_1',document.getElementById('ex4a-target'),false);
+  renderKaTeX('E = P \\cdot (t_2 - t_1)',document.getElementById('ex4a-start'),false);
+  renderKaTeX('t_1',document.getElementById('ex4a-target'),false);
 
   makeStepRow([
     {label:'Gegeven',  latex:'E = P \\cdot (t_2 - t_1)'},
@@ -469,8 +425,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   ],document.getElementById('ex5b-steps'));
 
   // Practice: x = a² · b → a
-  rk('x = a^{2} \\cdot b',document.getElementById('prac-formula-display'),true);
-  rk('a',document.getElementById('prac-target'),false);
+  renderKaTeX('x = a^{2} \\cdot b',document.getElementById('prac-formula-display'),true);
+  renderKaTeX('a',document.getElementById('prac-target'),false);
 });
 
 function checkPractice(){

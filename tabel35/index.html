@@ -10,6 +10,9 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/algebrite@1.4.0/dist/algebrite.bundle-for-browser.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.0/lib/browser/math.js"></script>
+<script src="../js/verify.js"></script>
+<script src="../js/keyboard.js"></script>
+<script src="../js/katex-init.js"></script>
 <script src="../data/formulas.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -271,7 +274,6 @@ math.config({implicit:'multiply'});
 
 // ── GREEK MAPS ──
 const GREEK_TO_LATEX={'α':'\\alpha','β':'\\beta','γ':'\\gamma','δ':'\\delta','η':'\\eta','λ':'\\lambda','ρ':'\\rho','ω':'\\omega','φ':'\\phi','Δ':'\\Delta','π':'\\pi'};
-const GREEK_TO_MATHJS={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta','λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi'};
 
 // ── CALC BAR ──
 const CALC_GROUPS=[
@@ -280,47 +282,6 @@ const CALC_GROUPS=[
   {label:'Grieks',btns:[{l:'Δ',v:'Δ'},{l:'λ',v:'λ'},{l:'π',v:'π'},{l:'ρ',v:'ρ'},{l:'φ',v:'φ'},{l:'η',v:'η'},{l:'ω',v:'ω'}]},
   {label:'Subscript',btns:[{l:'x_n',v:'_',id:'btn-sub'},{l:'↑',v:null,id:'btn-sub-end'}]},
 ];
-
-function buildCalcBar(){
-  const wrap=document.getElementById('calc-groups');
-  wrap.innerHTML='';
-  CALC_GROUPS.forEach((g,gi)=>{
-    if(gi>0){const sep=document.createElement('div');sep.className='calc-group-sep';wrap.appendChild(sep);}
-    const grp=document.createElement('div');grp.className='calc-group';
-    const lbl=document.createElement('span');lbl.className='calc-group-label';lbl.textContent=g.label;
-    grp.appendChild(lbl);
-    g.btns.forEach(b=>{
-      const btn=document.createElement('button');
-      btn.className='calc-btn';btn.type='button';btn.textContent=b.l;
-      if(b.id)btn.id=b.id;
-      btn.addEventListener('click',()=>handleCalcBtn(b));
-      grp.appendChild(btn);
-    });
-    wrap.appendChild(grp);
-  });
-}
-
-let subMode=false;
-function handleCalcBtn(b){
-  const inp=document.getElementById('answer-input');
-  if(inp.readOnly)return;
-  if(b.id==='btn-sub-end'){setSubMode(false);inp.focus();return;}
-  if(b.v===null)return;
-  if(b.v==='_'){insertAt(inp,'_');setSubMode(true);}
-  else{insertAt(inp,b.v);if(subMode&&'+-*/()^= '.includes(b.v))setSubMode(false);}
-  onInputChange();
-}
-function setSubMode(on){
-  subMode=on;
-  document.getElementById('sub-indicator').classList.toggle('visible',on);
-  const btn=document.getElementById('btn-sub');if(btn)btn.classList.toggle('sub-active',on);
-}
-function insertAt(inp,sym){
-  const s=inp.selectionStart,e=inp.selectionEnd;
-  inp.value=inp.value.slice(0,s)+sym+inp.value.slice(e);
-  inp.selectionStart=inp.selectionEnd=s+sym.length;
-  inp.focus();
-}
 
 // ── SETTINGS ──
 let currentNiveau='havo';
@@ -374,7 +335,7 @@ function nextExercise(){
   state.counter++;
   state.attempts=0;
   state.checked=false;
-  setSubMode(false);
+  kb.setSubMode(false);
 
   const pool=getFilteredFormulas();
   if(!pool.length){showPanel('settings');return;}
@@ -390,7 +351,7 @@ function nextExercise(){
   state.lastKey=key;
   state.formula=formula;
   state.solveTarget=solveTarget;
-  console.log('[exercise] canonical:',formula.canonical,'| target:',solveTarget,'| normTarget:',normalizeExpr(solveTarget));
+  console.log('[exercise] canonical:',formula.canonical,'| target:',solveTarget,'| normTarget:',_flatSubs(solveTarget));
 
   const thema=THEMAS[formula.thema];
   const badge=document.getElementById('ex-badge');
@@ -461,10 +422,10 @@ function skipExercise(){
 // ── INPUT ──
 function handleInputKey(e){
   if(e.key==='Enter'){handleCheckBtn();return;}
-  if(subMode){
-    if(e.key===' '){e.preventDefault();setSubMode(false);return;}
-    if(e.key==='ArrowUp'){e.preventDefault();setSubMode(false);return;}
-    if('+-*/()^='.includes(e.key))setSubMode(false);
+  if(kb.isSubMode()){
+    if(e.key===' '){e.preventDefault();kb.setSubMode(false);return;}
+    if(e.key==='ArrowUp'){e.preventDefault();kb.setSubMode(false);return;}
+    if('+-*/()^='.includes(e.key))kb.setSubMode(false);
   }
 }
 
@@ -499,10 +460,10 @@ function exprToLatex(expr){
 }
 
 function onInputChange(){
-  if(subMode){
+  if(kb.isSubMode()){
     const inp=document.getElementById('answer-input');
     const pos=inp.selectionStart,val=inp.value,lastChar=val[pos-1];
-    if(lastChar&&'+-*/()^= '.includes(lastChar))setSubMode(false);
+    if(lastChar&&'+-*/()^= '.includes(lastChar))kb.setSubMode(false);
   }
   updatePreview();
 }
@@ -515,158 +476,19 @@ function updatePreview(){
   catch(e){wrap.innerHTML=`<span style="color:var(--text-muted);font-size:12px">${raw}</span>`;}
 }
 
-function renderKaTeX(latex,el,display){
-  try{katex.render(latex,el,{throwOnError:false,displayMode:display});}catch(e){el.textContent=latex;}
-}
-
-// ── VERIFICATION ENGINE ──
-const _FUNCS=new Set(['sqrt','sin','cos','tan','log','ln','exp','abs']);
-const _CONSTS=new Set(['pi','e']);
-const _BUILTINS=new Set([..._FUNCS,..._CONSTS]);
-const _PRIMES=[2,3,5,7,11,13,17,19,23,29,31,37];
-
-function preNormalize(s){
-  s=String(s).trim();
-  for(let i=0;i<5;i++) s=s.replace(/\\d?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g,'($1)/($2)');
-  for(let i=0;i<3;i++) s=s.replace(/\\sqrt\s*\{([^{}]*)\}/g,'sqrt($1)');
-  s=s.replace(/\\sqrt\b/g,'sqrt');
-  s=s.replace(/\^\s*\{([^{}]+)\}/g,'^($1)');
-  s=s.replace(/\\Delta\b/g,'Delta').replace(/\\alpha\b/g,'alpha').replace(/\\beta\b/g,'beta')
-     .replace(/\\gamma\b/g,'gamma').replace(/\\delta\b/g,'delta').replace(/\\eta\b/g,'eta')
-     .replace(/\\lambda\b/g,'lambda').replace(/\\rho\b/g,'rho').replace(/\\omega\b/g,'omega')
-     .replace(/\\phi\b/g,'phi').replace(/\\pi\b/g,'pi');
-  s=s.replace(/\\cdot\b/g,'*').replace(/\\times\b/g,'*').replace(/\\div\b/g,'/');
-  s=s.replace(/\\([a-zA-Z]+)/g,'$1');
-  s=s.replace(/_\s*\{([^{}]+)\}/g,'_$1');
-  s=s.replace(/[{}]/g,'');
-  const uMap={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta',
-              'λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi'};
-  for(const[u,n]of Object.entries(uMap)) s=s.split(u).join(n);
-  s=s.replace(/·/g,'*').replace(/×/g,'*').replace(/÷/g,'/').replace(/√\(/g,'sqrt(');
-  s=s.replace(/\bDelta\s*([A-Za-z])\b/g,(m,l)=>'d'+l);
-  s=s.replace(/([a-zA-Z0-9])_([a-zA-Z0-9]+)/g,'$1$2');
-  return s.replace(/\s+/g,' ').trim();
-}
-
-function _tokenize(s){
-  const toks=[];let i=0;
-  while(i<s.length){
-    if(/\s/.test(s[i])){i++;continue;}
-    if(/\d/.test(s[i])||(s[i]==='.'&&/\d/.test(s[i+1]||''))){
-      let n='';while(i<s.length&&(/\d/.test(s[i])||s[i]==='.')){n+=s[i++];}
-      toks.push({t:'NUM',v:n});continue;
-    }
-    if(/[a-zA-Z]/.test(s[i])){
-      let nm='';while(i<s.length&&/[a-zA-Z0-9_]/.test(s[i])){nm+=s[i++];}
-      let j=i;while(j<s.length&&s[j]===' ')j++;
-      toks.push({t:s[j]==='('&&_FUNCS.has(nm)?'FUNC':'NAME',v:nm});continue;
-    }
-    if(s[i]==='('){toks.push({t:'LP',v:'('});i++;continue;}
-    if(s[i]===')'){toks.push({t:'RP',v:')'});i++;continue;}
-    if(s[i]==='='){toks.push({t:'EQ',v:'='});i++;continue;}
-    if('+-*/^'.includes(s[i])){toks.push({t:'OP',v:s[i]});i++;continue;}
-    i++;
-  }
-  return toks;
-}
-
-function _insertMul(toks){
-  const out=[];
-  for(let i=0;i<toks.length;i++){
-    out.push(toks[i]);
-    if(i<toks.length-1){
-      const a=toks[i],b=toks[i+1];
-      if(((a.t==='NUM'||a.t==='RP')&&(b.t==='NAME'||b.t==='FUNC'||b.t==='LP'||b.t==='NUM'))||
-         (a.t==='NAME'&&(b.t==='NAME'||b.t==='FUNC'||b.t==='LP')))
-        out.push({t:'OP',v:'*'});
-    }
-  }
-  return out;
-}
-
-function _getVars(toks){
-  const s=new Set();
-  for(const t of toks) if(t.t==='NAME'&&!_BUILTINS.has(t.v)) s.add(t.v);
-  return[...s];
-}
-
-function _process(raw){
-  const norm=preNormalize(raw);
-  const toks=_insertMul(_tokenize(norm));
-  return{str:toks.map(t=>t.v).join(''),vars:_getVars(toks)};
-}
-
-function verifyAnswer(studentInput,correctRhs){
-  console.log('[verify] input:',studentInput,'| correctRhs:',correctRhs);
-  let sRaw=preNormalize(studentInput);
-  if(sRaw.includes('=')){const p=sRaw.split('=');sRaw=p[p.length-1].trim();}
-  const{str:sStr,vars:sVars}=_process(sRaw);
-  const{str:cStr,vars:cVars}=_process(String(correctRhs));
-  const allVars=[...new Set([...sVars,...cVars])];
-  console.log('[verify] student:',sStr,'| correct:',cStr,'| vars:',allVars);
-  let pass=0;
-  for(let trial=0;trial<3;trial++){
-    try{
-      const mul=[1,1.3,1.7][trial];
-      const scope={};allVars.forEach((v,i)=>{scope[v]=_PRIMES[i%_PRIMES.length]*mul;});
-      console.log(`[trial ${trial}] scope:`,JSON.stringify(scope));
-      const sv=math.evaluate(sStr,{...scope}),cv=math.evaluate(cStr,{...scope});
-      console.log(`[trial ${trial}] sv=${sv} cv=${cv}`);
-      if(!isFinite(sv)||!isFinite(cv)||isNaN(sv)||isNaN(cv)){console.log(`[trial ${trial}] not finite`);continue;}
-      const err=Math.abs(sv-cv)/Math.max(Math.abs(cv),1e-10);
-      console.log(`[trial ${trial}] err=${err}`);
-      if(err<1e-4)pass++;
-    }catch(e){console.log(`[trial ${trial}] error:`,e.message);}
-  }
-  console.log('[verify] pass:',pass);
-  return pass>=2;
-}
-
-// ── DISPLAY LATEX ──
-const _VAR_LATEX={
-  'lambdamax':'\\lambda_{max}','lambda':'\\lambda','rho':'\\rho','eta':'\\eta',
-  'omega':'\\omega','phi':'\\phi','pi':'\\pi','alpha':'\\alpha','beta':'\\beta',
-  'gamma':'\\gamma','delta':'\\delta',
-  'Fg':'F_g','Fmpz':'F_{mpz}','Fres':'F_{res}','Fz':'F_z','Fv':'F_v',
-  'Ek':'E_k','Ep':'E_p','vgem':'v_{gem}','agem':'a_{gem}','vmax':'v_{max}',
-  'Rtot':'R_{tot}','Puit':'P_{uit}','Pin':'P_{in}',
-  'R1':'R_1','R2':'R_2','N0':'N_0','kW':'k_W',
-  'dx':'\\Delta x','dt':'\\Delta t','dT':'\\Delta T','dV':'\\Delta V','dv':'\\Delta v',
-};
-
-function _divToFrac(s){
-  for(let i=0;i<4;i++){
-    s=s.replace(/\(([^()]+)\)\/\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
-    s=s.replace(/\(([^()]+)\)\/([a-zA-Z0-9_.^{}\\]+)/g,'\\dfrac{$1}{$2}');
-    s=s.replace(/([a-zA-Z0-9_.^{}\\]+)\/\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
-    s=s.replace(/([a-zA-Z0-9_.^{}\\]+)\/([a-zA-Z0-9_.^{}\\]+)/g,'\\dfrac{$1}{$2}');
-  }
-  return s;
-}
-
-function toDisplayLatex(expr,target){
-  if(!expr) return target?`${target} = ?`:'?';
-  let s=preNormalize(String(expr));
-  Object.keys(_VAR_LATEX).sort((a,b)=>b.length-a.length).forEach(k=>{
-    s=s.replace(new RegExp('\\b'+k+'\\b','g'),_VAR_LATEX[k]);
-  });
-  s=_divToFrac(s);
-  s=s.replace(/sqrt\(([^()]*)\)/g,'\\sqrt{$1}');
-  s=s.replace(/sqrt\(([^)]*)\)/g,'\\sqrt{$1}');
-  s=s.replace(/\^\(([^()]+)\)/g,'^{$1}');
-  s=s.replace(/\^([a-zA-Z0-9.]+)/g,'^{$1}');
-  s=s.replace(/\*/g,' \\cdot ');
-  return target?`${target} = ${s}`:s;
+function _flatSubs(s){
+  return normalize(s).replace(/([a-zA-Z0-9])_([a-zA-Z0-9]+)/g,'$1$2');
 }
 
 function buildCorrectExpr(formula,target){
   try{
-    const normCanonical=preNormalize(formula.canonical);
-    const parts=normCanonical.split('=');
-    if(parts.length!==2)return null;
-    const expr=`${parts[1].trim()} - ${parts[0].trim()}`;
-    const normTarget=preNormalize(target);
-    const res=Algebrite.run(`solve(${expr}, ${normTarget})`);
+    const canon=formula.canonical.replace(/\s+/g,'');
+    const eqIdx=canon.indexOf('=');
+    if(eqIdx<0)return null;
+    const lhs=_flatSubs(canon.slice(0,eqIdx));
+    const rhs=_flatSubs(canon.slice(eqIdx+1));
+    const normTarget=_flatSubs(target);
+    const res=Algebrite.run(`solve(${rhs} - ${lhs}, ${normTarget})`);
     const clean=res.replace(/\[|\]/g,'').trim();
     if(!clean||clean.includes('solve('))return null;
     return clean;
@@ -674,9 +496,9 @@ function buildCorrectExpr(formula,target){
 }
 
 // ── CHECK ──
-function handleCheckBtn(){if(state.checked){nextExercise();return;}checkAnswer();}
+function handleCheckBtn(){if(state.checked){nextExercise();return;}doCheck();}
 
-function checkAnswer(){
+function doCheck(){
   const{formula,solveTarget}=state;
   const raw=document.getElementById('answer-input').value;
   if(!raw.trim())return;
@@ -695,7 +517,7 @@ function checkAnswer(){
     }else{
       try{
         console.log('[check] correctRhs:',correctRhs,'| target:',solveTarget);
-        isCorrect=verifyAnswer(raw,correctRhs);
+        isCorrect=checkAnswer(raw,correctRhs);
       }catch(e){parseError=true;console.log('[check] parseError:',e.message);}
     }
 
@@ -763,7 +585,7 @@ function showPanel(name){
 }
 
 // Init
-buildCalcBar();
+const kb=initKeyboard('answer-input',CALC_GROUPS);
 renderThemaChecks();
 </script>
 </body>
