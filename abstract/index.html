@@ -343,6 +343,7 @@ function generateExercise(levels){const l=pick(levels);if(l===1)return generateL
 
 // ── STATE ──
 let state={exercise:null,attempts:0,checked:false,counter:0,selectedLevels:[]};
+let currentCorrectAnswer=null;
 
 function startExercise(){
   state.selectedLevels=[1,2,3].filter(n=>document.querySelector(`#lbl-${n} input`).checked);
@@ -352,7 +353,8 @@ function startExercise(){
 function nextExercise(){
   state.counter++;state.attempts=0;state.checked=false;setSubMode(false);
   const ex=generateExercise(state.selectedLevels);state.exercise=ex;
-  console.log('[exercise] formula:',ex.formula,'| target:',ex.solveTarget,'| canonical:',ex.canonicalAnswer);
+  currentCorrectAnswer=ex.canonicalAnswer||ex.correctAnswer||null;
+  console.log('[exercise] formula:',ex.formula,'| target:',ex.solveTarget,'| correctAnswer:',currentCorrectAnswer);
   document.getElementById('ex-badge').textContent=`LEVEL ${ex.level}`;
   document.getElementById('ex-counter').textContent=`Opgave ${state.counter}`;
   const displayEl=document.getElementById('formula-display');displayEl.textContent='';
@@ -446,91 +448,146 @@ function renderKaTeX(latex,el,display){
   try{katex.render(latex,el,{throwOnError:false,displayMode:display});}catch(e){el.textContent=latex;}
 }
 
-// ── NORMALISE + PREPROCESS ──
-const BUILTINS_SET=new Set(['sqrt','pi','sin','cos','tan','log','exp','abs','alpha','beta','gamma','delta','eta','lambda','rho','omega','phi','Delta','nthRoot','e']);
-const PRIMES=[2,3,5,7,11,13,17,19,23,29];
+// ── VERIFICATION ENGINE ──
+const _FUNCS=new Set(['sqrt','sin','cos','tan','log','ln','exp','abs']);
+const _CONSTS=new Set(['pi','e']);
+const _BUILTINS=new Set([..._FUNCS,..._CONSTS]);
+const _PRIMES=[2,3,5,7,11,13,17,19,23,29,31,37];
 
-function normalizeExpr(s){
+function preNormalize(s){
   s=String(s).trim();
-  // LaTeX fractions
   for(let i=0;i<5;i++) s=s.replace(/\\d?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g,'($1)/($2)');
-  // LaTeX sqrt
   for(let i=0;i<3;i++) s=s.replace(/\\sqrt\s*\{([^{}]*)\}/g,'sqrt($1)');
   s=s.replace(/\\sqrt\b/g,'sqrt');
-  // LaTeX exponents & subscript braces
   s=s.replace(/\^\s*\{([^{}]+)\}/g,'^($1)');
-  s=s.replace(/_\s*\{([^{}]+)\}/g,'$1');
-  // LaTeX Greek commands → names
-  s=s.replace(/\\Delta\b/g,'Delta').replace(/\\alpha\b/g,'alpha')
-     .replace(/\\beta\b/g,'beta').replace(/\\gamma\b/g,'gamma')
-     .replace(/\\delta\b/g,'delta').replace(/\\eta\b/g,'eta')
-     .replace(/\\lambda\b/g,'lambda').replace(/\\rho\b/g,'rho')
-     .replace(/\\omega\b/g,'omega').replace(/\\phi\b/g,'phi').replace(/\\pi\b/g,'pi');
+  // Greek commands BEFORE subscript brace removal
+  s=s.replace(/\\Delta\b/g,'Delta').replace(/\\alpha\b/g,'alpha').replace(/\\beta\b/g,'beta')
+     .replace(/\\gamma\b/g,'gamma').replace(/\\delta\b/g,'delta').replace(/\\eta\b/g,'eta')
+     .replace(/\\lambda\b/g,'lambda').replace(/\\rho\b/g,'rho').replace(/\\omega\b/g,'omega')
+     .replace(/\\phi\b/g,'phi').replace(/\\pi\b/g,'pi');
   s=s.replace(/\\cdot\b/g,'*').replace(/\\times\b/g,'*').replace(/\\div\b/g,'/');
   s=s.replace(/\\([a-zA-Z]+)/g,'$1');
+  s=s.replace(/_\s*\{([^{}]+)\}/g,'_$1'); // keep underscore
   s=s.replace(/[{}]/g,'');
-  // Unicode Greek → names
   const uMap={'α':'alpha','β':'beta','γ':'gamma','δ':'delta','η':'eta',
               'λ':'lambda','ρ':'rho','ω':'omega','φ':'phi','Δ':'Delta','π':'pi'};
   for(const[u,n]of Object.entries(uMap)) s=s.split(u).join(n);
-  // Unicode operators
   s=s.replace(/·/g,'*').replace(/×/g,'*').replace(/÷/g,'/').replace(/√\(/g,'sqrt(');
-  // Delta X → dX (single letter)
   s=s.replace(/\bDelta\s*([A-Za-z])\b/g,(m,l)=>'d'+l);
-  // Subscript flattening: v_max → vmax
   s=s.replace(/([a-zA-Z0-9])_([a-zA-Z0-9]+)/g,'$1$2');
   return s.replace(/\s+/g,' ').trim();
 }
 
-function prepForEval(s){
-  // Protect builtins with null-byte placeholders
-  const BUILTINS=['sqrt','pi','sin','cos','tan','log','exp','abs','alpha','beta','gamma',
-                  'delta','eta','lambda','rho','omega','phi','Delta','nthRoot'];
-  const map=[];
-  for(const w of BUILTINS){
-    const re=new RegExp('\\b'+w+'\\b','g');
-    s=s.replace(re,()=>{map.push(w);return`\x00${map.length-1}\x00`;});
+function _tokenize(s){
+  const toks=[];let i=0;
+  while(i<s.length){
+    if(/\s/.test(s[i])){i++;continue;}
+    if(/\d/.test(s[i])||(s[i]==='.'&&/\d/.test(s[i+1]||''))){
+      let n='';while(i<s.length&&(/\d/.test(s[i])||s[i]==='.')){n+=s[i++];}
+      toks.push({t:'NUM',v:n});continue;
+    }
+    if(/[a-zA-Z]/.test(s[i])){
+      let nm='';while(i<s.length&&/[a-zA-Z0-9_]/.test(s[i])){nm+=s[i++];}
+      let j=i;while(j<s.length&&s[j]===' ')j++;
+      toks.push({t:s[j]==='('&&_FUNCS.has(nm)?'FUNC':'NAME',v:nm});continue;
+    }
+    if(s[i]==='('){toks.push({t:'LP',v:'('});i++;continue;}
+    if(s[i]===')'){toks.push({t:'RP',v:')'});i++;continue;}
+    if(s[i]==='='){toks.push({t:'EQ',v:'='});i++;continue;}
+    if('+-*/^'.includes(s[i])){toks.push({t:'OP',v:s[i]});i++;continue;}
+    i++;
   }
-  // Wrap implicit denominators (2+ letters after /)
-  s=s.replace(/\/(?!\()([a-zA-Z][a-zA-Z]+)(?=[^a-zA-Z0-9_]|$)/g,(m,letters)=>'/('+letters+')');
-  // Digit → letter and letter → letter implicit multiply (abstract: all single-letter vars)
-  s=s.replace(/(\d)([a-zA-Z])/g,'$1*$2');
-  s=s.replace(/([a-zA-Z])([a-zA-Z])/g,'$1*$2');
-  // Restore builtins
-  map.forEach((w,i)=>{s=s.split(`\x00${i}\x00`).join(w);});
-  return s;
+  return toks;
 }
 
-function extractVars(s){
-  const tokens=(s.match(/\b[a-zA-Z][a-zA-Z0-9]*\b/g)||[]);
-  return[...new Set(tokens)].filter(t=>!BUILTINS_SET.has(t));
+function _insertMul(toks){
+  const out=[];
+  for(let i=0;i<toks.length;i++){
+    out.push(toks[i]);
+    if(i<toks.length-1){
+      const a=toks[i],b=toks[i+1];
+      if(((a.t==='NUM'||a.t==='RP')&&(b.t==='NAME'||b.t==='FUNC'||b.t==='LP'||b.t==='NUM'))||
+         (a.t==='NAME'&&(b.t==='NAME'||b.t==='FUNC'||b.t==='LP')))
+        out.push({t:'OP',v:'*'});
+    }
+  }
+  return out;
 }
 
-// ── NUMERIC CHECK ──
-function numericCheck(formulaEq,solveTarget,studentRhs){
-  const allVars=extractVars(formulaEq+' '+studentRhs);
-  if(!extractVars(formulaEq).includes(solveTarget))return null;
-  const otherVars=allVars.filter(v=>v!==solveTarget);
+function _getVars(toks){
+  const s=new Set();
+  for(const t of toks) if(t.t==='NAME'&&!_BUILTINS.has(t.v)) s.add(t.v);
+  return[...s];
+}
+
+function _process(raw){
+  const norm=preNormalize(raw);
+  const toks=_insertMul(_tokenize(norm));
+  return{str:toks.map(t=>t.v).join(''),vars:_getVars(toks)};
+}
+
+function verifyAnswer(studentInput,correctRhs){
+  console.log('[verify] input:',studentInput,'| correctRhs:',correctRhs);
+  let sRaw=preNormalize(studentInput);
+  if(sRaw.includes('=')){const p=sRaw.split('=');sRaw=p[p.length-1].trim();}
+  const{str:sStr,vars:sVars}=_process(sRaw);
+  const{str:cStr,vars:cVars}=_process(String(correctRhs));
+  const allVars=[...new Set([...sVars,...cVars])];
+  console.log('[verify] student:',sStr,'| correct:',cStr,'| vars:',allVars);
   let pass=0;
   for(let trial=0;trial<3;trial++){
     try{
-      const scope={};
-      otherVars.forEach((v,i)=>{scope[v]=PRIMES[(i+trial*4)%PRIMES.length];});
-      const studentPrep=prepForEval(studentRhs);
-      const studentVal=math.evaluate(studentPrep,{...scope});
-      console.log(`[trial ${trial}] scope:`,JSON.stringify(scope),'studentVal:',studentVal);
-      if(!isFinite(studentVal)||isNaN(studentVal)){console.log(`[trial ${trial}] skip — not finite`);continue;}
-      const checkScope={...scope,[solveTarget]:studentVal};
-      const eqParts=formulaEq.split('=');
-      const lv=math.evaluate(prepForEval(eqParts[0].trim()),checkScope);
-      const rv=math.evaluate(prepForEval(eqParts[1].trim()),checkScope);
-      const err=Math.abs(lv-rv)/(Math.max(Math.abs(lv),Math.abs(rv),1e-10));
-      console.log(`[trial ${trial}] lv=${lv} rv=${rv} err=${err}`);
+      const mul=[1,1.3,1.7][trial];
+      const scope={};allVars.forEach((v,i)=>{scope[v]=_PRIMES[i%_PRIMES.length]*mul;});
+      console.log(`[trial ${trial}] scope:`,JSON.stringify(scope));
+      const sv=math.evaluate(sStr,{...scope}),cv=math.evaluate(cStr,{...scope});
+      console.log(`[trial ${trial}] sv=${sv} cv=${cv}`);
+      if(!isFinite(sv)||!isFinite(cv)||isNaN(sv)||isNaN(cv)){console.log(`[trial ${trial}] not finite`);continue;}
+      const err=Math.abs(sv-cv)/Math.max(Math.abs(cv),1e-10);
+      console.log(`[trial ${trial}] err=${err}`);
       if(err<1e-4)pass++;
     }catch(e){console.log(`[trial ${trial}] error:`,e.message);}
   }
-  console.log('[numericCheck] pass:',pass);
+  console.log('[verify] pass:',pass);
   return pass>=2;
+}
+
+// ── DISPLAY LATEX ──
+const _VAR_LATEX={
+  'lambdamax':'\\lambda_{max}','lambda':'\\lambda','rho':'\\rho','eta':'\\eta',
+  'omega':'\\omega','phi':'\\phi','pi':'\\pi','alpha':'\\alpha','beta':'\\beta',
+  'gamma':'\\gamma','delta':'\\delta',
+  'Fg':'F_g','Fmpz':'F_{mpz}','Fres':'F_{res}','Fz':'F_z','Fv':'F_v',
+  'Ek':'E_k','Ep':'E_p','vgem':'v_{gem}','agem':'a_{gem}','vmax':'v_{max}',
+  'Rtot':'R_{tot}','Puit':'P_{uit}','Pin':'P_{in}',
+  'R1':'R_1','R2':'R_2','N0':'N_0','kW':'k_W',
+  'dx':'\\Delta x','dt':'\\Delta t','dT':'\\Delta T','dV':'\\Delta V','dv':'\\Delta v',
+};
+
+function _divToFrac(s){
+  for(let i=0;i<4;i++){
+    s=s.replace(/\(([^()]+)\)\/\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+    s=s.replace(/\(([^()]+)\)\/([a-zA-Z0-9_.^{}\\]+)/g,'\\dfrac{$1}{$2}');
+    s=s.replace(/([a-zA-Z0-9_.^{}\\]+)\/\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+    s=s.replace(/([a-zA-Z0-9_.^{}\\]+)\/([a-zA-Z0-9_.^{}\\]+)/g,'\\dfrac{$1}{$2}');
+  }
+  return s;
+}
+
+function toDisplayLatex(expr,target){
+  if(!expr) return target?`${target} = ?`:'?';
+  let s=preNormalize(String(expr));
+  // Apply var map longest-first
+  Object.keys(_VAR_LATEX).sort((a,b)=>b.length-a.length).forEach(k=>{
+    s=s.replace(new RegExp('\\b'+k+'\\b','g'),_VAR_LATEX[k]);
+  });
+  s=_divToFrac(s);
+  s=s.replace(/sqrt\(([^()]*)\)/g,'\\sqrt{$1}');
+  s=s.replace(/sqrt\(([^)]*)\)/g,'\\sqrt{$1}');
+  s=s.replace(/\^\(([^()]+)\)/g,'^{$1}');
+  s=s.replace(/\^([a-zA-Z0-9.]+)/g,'^{$1}');
+  s=s.replace(/\*/g,' \\cdot ');
+  return target?`${target} = ${s}`:s;
 }
 
 // ── CHECK ──
@@ -549,19 +606,25 @@ function checkAnswer(){
         hintBar=document.getElementById('hint-bar'),btnCheck=document.getElementById('btn-check');
   btnCheck.disabled=true;btnCheck.innerHTML='<span class="loading-indicator"></span>Controleren…';
   setTimeout(()=>{
-    let isCorrect=false,parseError=false;
-    try{
-      const studentNorm=normalizeExpr(raw),parts=studentNorm.split('=');
-      if(parts.length!==2)throw new Error('no equals');
-      const studentRhs=parts[1].trim();
-      console.log('[check] formula:',ex.formula,'| target:',ex.solveTarget,'| studentRhs:',studentRhs);
-      const res=numericCheck(ex.formula,ex.solveTarget,studentRhs);
-      isCorrect=res===true;
-    }catch(e){parseError=true;console.log('[check] parseError:',e.message);}
+    let isCorrect=false,parseError=false,cannotVerify=false;
+    if(!currentCorrectAnswer){cannotVerify=true;}
+    else{
+      try{
+        isCorrect=verifyAnswer(raw,currentCorrectAnswer);
+      }catch(e){parseError=true;console.log('[check] parseError:',e.message);}
+    }
     btnCheck.disabled=false;btnCheck.innerHTML='Controleer';
     if(parseError){
-      fb.textContent='Ik begrijp je invoer niet. Controleer haakjes en symbolen.';
+      fb.textContent='Ik kan je invoer niet verwerken — controleer haakjes en symbolen.';
       fb.className='feedback-bar retry';return;
+    }
+    if(cannotVerify){
+      fb.textContent='Geen referentie-antwoord beschikbaar. Sla over of bekijk de uitwerking.';
+      fb.className='feedback-bar retry';
+      document.getElementById('solution-reveal').style.display='block';
+      document.getElementById('solution-content').style.display='none';
+      state.checked=true;btnCheck.textContent='Volgende opgave';
+      document.getElementById('btn-skip').style.display='none';return;
     }
     if(isCorrect){
       fb.textContent='Goed! ✓';fb.className='feedback-bar ok';
@@ -589,10 +652,8 @@ function showSolution(){
   document.getElementById('btn-reveal').style.display='none';
   const sc=document.getElementById('solution-content');sc.style.display='block';
   const solEl=document.getElementById('solution-katex');
-  const ans=ex.correctAnswer||ex.canonicalAnswer||null;
-  if(ans){
-    const norm=normalizeExpr(ans);
-    const latex=`${ex.solveTarget} = ${exprToLatex(norm)}`;
+  if(currentCorrectAnswer){
+    const latex=toDisplayLatex(currentCorrectAnswer,ex.solveTarget);
     renderKaTeX(latex,solEl,false);
   }else{
     solEl.textContent='Geen uitwerking beschikbaar.';
