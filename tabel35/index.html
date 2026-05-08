@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/algebrite@1.4.0/dist/algebrite.bundle-for-browser.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.0/lib/browser/math.js"></script>
 <script src="../js/verify.js"></script>
 <script src="../js/keyboard.js"></script>
@@ -344,7 +343,9 @@ function nextExercise(){
   do{
     formula=pool[Math.floor(Math.random()*pool.length)];
     const targets=formula.solveFor;
-    solveTarget=targets[Math.floor(Math.random()*targets.length)];
+	const targetObj=targets[Math.floor(Math.random()*targets.length)];
+	solveTarget=targetObj.key;
+	state.solveTargetDisplay=targetObj.display;
     key=formula.id+'::'+solveTarget;
     tries++;
   } while(key===state.lastKey&&tries<20);
@@ -383,7 +384,7 @@ function nextExercise(){
 
   const tEl=document.getElementById('question-target');
   tEl.innerHTML='';
-  renderKaTeX(solveTarget,tEl,false);
+  renderKaTeX(state.solveTargetDisplay||solveTarget,tEl,false);
 
   const inp=document.getElementById('answer-input');
   inp.value='';inp.className='formula-input';inp.readOnly=false;
@@ -433,28 +434,49 @@ function handleInputKey(e){
 function exprToLatex(expr){
   if(!expr)return'';
   let s=expr.trim();
-  // Named Greek (including pi) → LaTeX
   const nameMap={'alpha':'\\alpha','beta':'\\beta','gamma':'\\gamma','delta':'\\delta',
                  'eta':'\\eta','lambda':'\\lambda','rho':'\\rho','omega':'\\omega',
                  'phi':'\\phi','pi':'\\pi'};
   for(const[n,l]of Object.entries(nameMap))s=s.replace(new RegExp('\\b'+n+'\\b','g'),l);
-  // Unicode Greek → LaTeX (fallback)
   for(const[u,l]of Object.entries(GREEK_TO_LATEX))s=s.split(u).join(l);
-  // sqrt
-  s=s.replace(/sqrt\(([^()]*)\)/g,'\\sqrt{$1}');
-  s=s.replace(/sqrt\(([^)]*)\)/g,'\\sqrt{$1}');
-  // Exponents
   s=s.replace(/\^(-?\d+(?:\.\d+)?)/g,'^{$1}');
   s=s.replace(/\^([a-zA-Z_][a-zA-Z0-9_]*)/g,'^{$1}');
-  // Subscripts: vmax → v_{max} — reintroduce after flatten for display
   s=s.replace(/_([a-zA-Z0-9]+)/g,'_{$1}');
-  // Fractions (3 passes for nested)
+  s=s.replace(/([a-zA-Z0-9_^()]+(?:\*[a-zA-Z0-9_^()*]+)+)\/([a-zA-Z0-9_^()]+)/g,
+    (m,num,den)=>`(${num})/${den}`);
+  s=s.replace(/([a-zA-Z0-9_^()]+)\/([a-zA-Z0-9_^()]+(?:\*[a-zA-Z0-9_^()]+)+)/g,
+    (m,num,den)=>`${num}/(${den})`);
+  s=s.replace(/sqrt\(([^)]+)\)/g,(match,inner)=>{
+    let inn=inner;
+    inn=inn.replace(/([a-zA-Z0-9_^()]+(?:\*[a-zA-Z0-9_^()*]+)+)\/([a-zA-Z0-9_^()]+)/g,
+      (m,num,den)=>`(${num})/${den}`);
+    inn=inn.replace(/([a-zA-Z0-9_^()]+)\/([a-zA-Z0-9_^()]+(?:\*[a-zA-Z0-9_^()]+)+)/g,
+      (m,num,den)=>`${num}/(${den})`);
+    inn=inn.replace(/\(([^()]+)\)\/\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+    inn=inn.replace(/([a-zA-Z0-9_{}\\^]+)\/\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
+    inn=inn.replace(/\(([^()]+)\)\/([a-zA-Z0-9_{}\\^]+)/g,'\\dfrac{$1}{$2}');
+    inn=inn.replace(/([a-zA-Z0-9_{}\\^]+)\/([a-zA-Z0-9_{}\\^]+)/g,'\\dfrac{$1}{$2}');
+    inn=inn.replace(/\*/g,'\\cdot ');
+    return `\\sqrt{${inn}}`;
+  });
+    
+const dfracStore = [];
+  // Sla eerst alle bestaande \dfrac op als placeholder
+  function storeDfrac(str) {
+    return str.replace(/\\dfrac\{(?:[^{}]|\{[^{}]*\})*\}\{(?:[^{}]|\{[^{}]*\})*\}/g, m => {
+      dfracStore.push(m); return `__DF${dfracStore.length-1}__`;
+    });
+  }
+  s = storeDfrac(s);
   for(let i=0;i<3;i++){
     s=s.replace(/\(([^()]+)\)\s*\/\s*\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
     s=s.replace(/\(([^()]+)\)\s*\/\s*([a-zA-Z0-9_.^{}\\]+)/g,'\\dfrac{$1}{$2}');
     s=s.replace(/([a-zA-Z0-9_.^{}\\]+)\s*\/\s*\(([^()]+)\)/g,'\\dfrac{$1}{$2}');
     s=s.replace(/([a-zA-Z0-9_^{}\\]+)\s*\/\s*([a-zA-Z0-9_^{}\\]+)/g,'\\dfrac{$1}{$2}');
+    s = storeDfrac(s); // bescherm nieuw gemaakte \dfrac ook
   }
+  dfracStore.forEach((v,i) => { s = s.split(`__DF${i}__`).join(v); });
+  dfracStore.forEach((v,i) => { s = s.split(`__DF${i}__`).join(v); });
   s=s.replace(/\*/g,'\\cdot ');
   return s;
 }
@@ -472,27 +494,33 @@ function updatePreview(){
   const raw=document.getElementById('answer-input').value;
   const wrap=document.getElementById('preview-wrap');
   if(!raw.trim()){wrap.innerHTML='';return;}
-  try{katex.render(exprToLatex(raw),wrap,{throwOnError:false,displayMode:false});}
-  catch(e){wrap.innerHTML=`<span style="color:var(--text-muted);font-size:12px">${raw}</span>`;}
+  try{
+    const latex=exprToLatex(raw);
+    katex.render(latex,wrap,{throwOnError:true,displayMode:false});
+  }catch(e){
+    // Bij complexe breuken: toon nette vereenvoudigde versie
+    try{
+      const simple=raw.replace(/\*/g,'·').replace(/sqrt\(/g,'√(');
+      wrap.innerHTML=`<span style="font-size:1rem;color:var(--text-secondary)">${simple}</span>`;
+    }catch(e2){wrap.innerHTML='';}
+  }
 }
 
 function _flatSubs(s){
   return normalize(s).replace(/([a-zA-Z0-9])_([a-zA-Z0-9]+)/g,'$1$2');
 }
 
-function buildCorrectExpr(formula,target){
-  try{
-    const canon=formula.canonical.replace(/\s+/g,'');
-    const eqIdx=canon.indexOf('=');
-    if(eqIdx<0)return null;
-    const lhs=_flatSubs(canon.slice(0,eqIdx));
-    const rhs=_flatSubs(canon.slice(eqIdx+1));
-    const normTarget=_flatSubs(target);
-    const res=Algebrite.run(`solve(${rhs} - ${lhs}, ${normTarget})`);
-    const clean=res.replace(/\[|\]/g,'').trim();
-    if(!clean||clean.includes('solve('))return null;
-    return clean;
-  }catch(e){return null;}
+function buildCorrectExpr(formula, target) {
+  if (!formula.answers) return null;
+  // Normaliseer target: verwijder subscripts, LaTeX etc.
+  const norm = normalize(target).replace(/_/g, '');
+  // Zoek direct op
+  if (formula.answers[target]) return formula.answers[target];
+  if (formula.answers[norm]) return formula.answers[norm];
+  // Probeer platgeslagen versie
+  const flat = target.replace(/[_{}\\]/g, '');
+  if (formula.answers[flat]) return formula.answers[flat];
+  return null;
 }
 
 // ── CHECK ──
@@ -567,7 +595,7 @@ function showSolution(){
   const solEl=document.getElementById('solution-katex');
   const correctExpr=buildCorrectExpr(formula,solveTarget);
   if(correctExpr){
-    renderKaTeX(toDisplayLatex(correctExpr,solveTarget),solEl,false);
+    renderKaTeX(toDisplayLatex(correctExpr, state.solveTarget), solEl, false);
   }else{
     solEl.textContent='Zie formuleblad.';
   }
